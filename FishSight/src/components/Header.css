@@ -1,0 +1,179 @@
+/* src/components/Header.css */
+:root {
+    --primary-teal: #00897B; 
+    --dark-teal: #00695C;
+}
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* --- 1. LOGO SECTION (Fixed Size) --- */
+.logo-link {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 10; /* Keeps it clickable above the centered links */
+}
+
+.logo-img {
+  height: 45px; /* This guarantees the logo stays small and constant! */
+  width: auto;
+  max-width: 150px;
+  object-fit: contain; 
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-teal);
+}
+
+/* --- 2. DESKTOP MENU (Centered Links) --- */
+.desktop-menu {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Pushes the Login/Register buttons to the far right */
+  flex-grow: 1;
+  z-index: 10;
+}
+
+/* This trick locks the links to the exact middle of the screen */
+.nav-links {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  list-style: none;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: var(--primary-teal);
+}
+
+/* --- 3. BUTTONS --- */
+.auth-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.greeting {
+  font-weight: bold;
+  color: #333;
+}
+
+.btn {
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.btn-login {
+  border: 2px solid var(--primary-teal);
+  color: var(--primary-teal);
+  background: transparent;
+}
+
+.btn-register {
+  background-color: var(--primary-teal);
+  color: white;
+  border: 2px solid var(--primary-teal);
+}
+
+.btn-login:hover {
+  background-color: #f0fdfa;
+}
+
+.btn-register:hover {
+  background-color: var(--dark-teal);
+  border-color: var(--dark-teal);
+}
+
+/* --- 4. MOBILE MENU ICON --- */
+.mobile-menu-icon {
+  display: none; 
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: var(--primary-teal);
+  user-select: none; 
+}
+
+/* --- 5. RESPONSIVE DESIGN (Mobile) --- */
+@media (max-width: 900px) {
+  /* Hide desktop elements */
+  .desktop-menu, .nav-links {
+    display: none !important; 
+  }
+
+  /* Show mobile icon */
+  .mobile-menu-icon {
+    display: block; 
+  }
+
+  /* Mobile Dropdown Fix */
+  .mobile-dropdown {
+    position: absolute;
+    top: 100%; /* Uses 100% instead of 70px to snap perfectly below the navbar, preventing it from covering the 'X' */
+    left: 0;
+    width: 100%;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 100;
+  }
+  
+  .mobile-dropdown a {
+    margin: 12px 0;
+    font-size: 1.2rem;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .mobile-greeting {
+    font-weight: bold;
+    color: var(--primary-teal);
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+
+  .mobile-auth {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+    width: 200px;
+  }
+
+  .mobile-auth .btn {
+    width: 100%;
+    text-align: center;
+    margin: 0;
+  }
+}

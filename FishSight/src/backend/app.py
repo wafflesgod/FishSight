@@ -1,0 +1,274 @@
+import os
+import traceback
+import numpy as np
+from PIL import Image
+import io
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
+from datetime import datetime, timezone
+
+# --- THE MAGIC BULLET IMPORTS ---
+import tf_keras as keras
+from tf_keras.applications.resnet50 import ResNet50, preprocess_input
+from tf_keras.layers import Dense, GlobalAveragePooling2D, Dropout
+from tf_keras.models import Model
+# --------------------------------
+
+# Import your MongoDB collection from database.py
+from database import users_collection, species_collection
+
+from langchain_groq import ChatGroq
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+
+print("🔥 NEW VERSION OF app.py RUNNING")
+
+# Load the secret variables from the .env file
+load_dotenv()
+
+app = Flask(__name__)
+CORS(app)  
+
+# ==========================================
+# CONFIGURATION & BRAIN LOAD
+# ==========================================
+groq_api_key = os.getenv("GROQ_API_KEY") 
+
+print("Loading Aquarium Brain...")
+script_dir = os.path.dirname(os.path.abspath(__file__))
+index_path = os.path.join(script_dir, "aquarium_index")
+
+if not os.path.exists(index_path):
+    print("ERROR: Index not found! Run setup_database.py first.")
+    exit()
+
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+vector_store = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
+retriever = vector_store.as_retriever(search_kwargs={"k": 3}) 
+
+llm = ChatGroq(
+    temperature=0.0, 
+    model_name="llama-3.1-8b-instant", 
+    api_key=groq_api_key
+)
+
+print("🤖 Smart Aquarium Bot is Ready!")
+
+# ==========================================
+# LOAD VISION MODEL (THE SHELL & WEIGHTS TRICK)
+# ==========================================
+print("Loading Fish Recognition Model...")
+model_path = os.path.join(script_dir, "resnet50.h5") 
+
+try:
+    # 1. Build the exact empty shell of your Colab model
+    base_model = ResNet50(weights=None, include_top=False, input_shape=(224, 224, 3))
+    x = base_model.output
+    x = GlobalAveragePooling2D()(x)
+    x = Dropout(0.5)(x)
+    predictions = Dense(12, activation='softmax')(x)
+    
+    fish_model = Model(inputs=base_model.input, outputs=predictions)
+
+    # 2. Pour your trained weights into the shell! (Bypasses version errors completely)
+    fish_model.load_weights(model_path)
+    print("✅ Vision Model is Ready!")
+except Exception as e:
+    print(f"⚠️ Could not load Vision Model: {e}")
+    fish_model = None
+
+FISH_CLASSES = [
+    "Angel Fish",
+    "Cardinal Tetra", 
+    "Cherry Barb",    
+    "Common Carp",
+    "Gold Fish",
+    "Gourami", 
+    "Guppy Fish",
+    "Molly Fish",
+    "Neon Tetra",
+    "Platy Fish",
+    "Rohu",
+    "Zebra Fish"          
+]
+
+# ==========================================
+# FISH IDENTIFICATION ROUTE
+# ==========================================
+@app.route('/predict', methods=['POST'])
+def predict():
+    print("🚀 /predict endpoint hit")
+
+    if fish_model is None:
+        return jsonify({"error": "Vision model is not loaded on the server"}), 500
+
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    
+    try:
+        image_bytes = file.read()
+        img = Image.open(io.BytesIO(image_bytes)).convert('RGB')
+        img = img.resize((224, 224))
+
+        img_array = keras.preprocessing.image.img_to_array(img)
+        img_array = np.expand_dims(img_array, axis=0)
+        img_array = preprocess_input(img_array)
+
+        # Get the prediction array
+        predictions = fish_model.predict(img_array)
+        print("📊 Predictions Array:", predictions)
+
+        # --- CALCULATE THE RESULT (Restored from your earlier code!) ---
+        predicted_class_index = np.argmax(predictions[0])
+        confidence_score = float(np.max(predictions[0])) * 100
+        predicted_species = FISH_CLASSES[predicted_class_index]
+        # ---------------------------------------------------------------
+
+        # --- DATABASE QUERY (NEW!) ---
+        # Search MongoDB for the exact fish name we just predicted
+        species_data = species_collection.find_one({"CommonName": predicted_species})
+
+        if species_data:
+            # Format the data nicely for the frontend
+            care_level = f"Temp: {species_data.get('Temp_Range')} | pH: {species_data.get('PH_Range')} | Diet: {species_data.get('Diet')}"
+            notes = species_data.get('Description')
+        else:
+            # Fallback if the fish isn't in the database yet
+            care_level = "Check Fish Info tab for details"
+            notes = "Analysis complete."
+
+        return jsonify({
+            "species": predicted_species,
+            "confidence": f"{confidence_score:.2f}%",
+            "careLevel": care_level, 
+            "notes": notes
+        }), 200
+    
+    except Exception as e:
+        print("\n=== FULL ERROR START ===")
+        traceback.print_exc()
+        print("=== FULL ERROR END ===\n")
+        return jsonify({"error": str(e)}), 500
+
+# ==========================================
+# AUTHENTICATION ROUTES
+# ==========================================
+@app.route('/auth/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not username or not email or not password:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    if users_collection.find_one({"email": email}):
+        return jsonify({"error": "Email already exists"}), 400
+
+    hashed_password = generate_password_hash(password)
+    join_date = datetime.now(timezone.utc)
+
+    new_user = {
+        "username": username,
+        "email": email,
+        "password": hashed_password,
+        "JoinDate": join_date 
+    }
+    users_collection.insert_one(new_user)
+    return jsonify({"message": "User created successfully!"}), 201
+
+
+@app.route('/auth/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    user = users_collection.find_one({"email": email})
+
+    if user and check_password_hash(user['password'], password):
+        return jsonify({
+            "message": "Login successful!", 
+            "username": user['username'],
+            "email": user['email']
+        }), 200
+    else:
+        return jsonify({"error": "Invalid email or password"}), 401
+
+
+# ==========================================
+# THE CHAT ROUTE
+# ==========================================
+@app.route('/chat', methods=['POST'])
+def chat():
+    data = request.json
+    user_input = data.get('message', '')
+    history = data.get('history', []) 
+
+    if not user_input:
+        return jsonify({"error": "No message provided"}), 400
+
+    search_query = user_input
+    last_user_message = next((msg['text'] for msg in reversed(history) if msg['sender'] == 'user'), None)
+
+    if last_user_message and len(user_input.split()) < 5:
+        search_query = f"{last_user_message} {user_input}"
+
+    docs = retriever.invoke(search_query)
+    context_text = "\n\n".join([doc.page_content for doc in docs])
+
+    conversation_text = ""
+    for msg in history[-5:]: 
+        role = "User" if msg['sender'] == 'user' else "Assistant"
+        conversation_text += f"{role}: {msg['text']}\n"
+
+    prompt = f"""
+    You are a helpful Aquarium Assistant.
+    
+    PAST CONVERSATION:
+    {conversation_text}
+    
+    RELEVANT KNOWLEDGE FROM DATABASE:
+    {context_text}
+    
+    CURRENT USER QUESTION:
+    {user_input}
+    
+    INSTRUCTIONS:
+    - Use the RELEVANT KNOWLEDGE to answer.
+    - If the user says "Yes" or "What about it?", look at PAST CONVERSATION to understand context.
+    - Keep answers concise and friendly.
+    """
+    
+    try:
+        response = llm.invoke(prompt)
+        return jsonify({"response": response.content})
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+# ==========================================
+# FISH INFO ROUTE
+# ==========================================
+@app.route('/api/fish-info', methods=['GET'])
+def get_fish_info():
+    try:
+        # Fetch all fish, but exclude the internal MongoDB '_id' object to avoid JSON errors
+        fish_list = list(species_collection.find({}, {"_id": 0}))
+        return jsonify(fish_list), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(port=5000, debug=True, use_reloader=False)

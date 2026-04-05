@@ -1,0 +1,85 @@
+/* src/pages/FishId.css */
+.fish-id-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.upload-box {
+  border: 3px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 3rem;
+  cursor: pointer;
+  background-color: #f8fafc;
+  transition: all 0.3s ease;
+  margin: 2rem 0;
+  position: relative;
+}
+
+.upload-box:hover {
+  border-color: #00897B;
+  background-color: #f0fdfa; /* Light teal tint */
+}
+
+.upload-box input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0; /* Hide the ugly default input */
+  cursor: pointer;
+}
+
+.icon-large {
+  font-size: 3rem;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+}
+
+.preview-container {
+  margin-top: 2rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.analyze-btn {
+  background-color: #00897B;
+  color: white;
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.analyze-btn:hover {
+  background-color: #00695C;
+}
+
+.analyze-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.result-box {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f0fdfa;
+  border: 1px solid #00897B;
+  border-radius: 8px;
+  text-align: left;
+}
