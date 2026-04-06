@@ -1,0 +1,12 @@
+# Web Framework
+flask==3.0.0          # Or fastapi==0.109.0 if you prefer FastAPI
+flask-cors==4.0.0     # Vital for connecting your React frontend to Python
+
+# Deep Learning & Computer Vision
+tensorflow==2.15.0    # Includes Keras and ResNet50
+numpy==1.26.4         # For array manipulations
+Pillow==10.2.0        # For opening and resizing uploaded fish images
+opencv-python==4.9.0  # Optional: helpful for advanced image preprocessing
+
+# Utilities
+python-dotenv==1.0.1  # For managing secret keys and environment variables
