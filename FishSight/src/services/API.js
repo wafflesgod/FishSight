@@ -66,3 +66,14 @@ export const AuthService = {
 export const ChatService = {
   sendMessage: (message) => apiRequest("/chat", "POST", { message }),
 };
+
+// NEW: Community Forum API calls
+export const ForumService = {
+  getPosts: () => apiRequest("/api/forum", "GET"),
+  createPost: (postData) => apiRequest("/api/forum", "POST", postData),
+  addComment: (postId, commentData) => apiRequest(`/api/forum/${postId}/comment`, "POST", commentData),
+  
+  // ADD THESE TWO LINES:
+  toggleLike: (postId, userData) => apiRequest(`/api/forum/${postId}/like`, "POST", userData),
+  deletePost: (postId, userData) => apiRequest(`/api/forum/${postId}`, "DELETE", userData),
+};
