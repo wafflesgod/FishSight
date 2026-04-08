@@ -8,6 +8,7 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from datetime import datetime, timezone
+from bson.objectid import ObjectId
 
 # --- THE MAGIC BULLET IMPORTS ---
 import tf_keras as keras
@@ -17,7 +18,7 @@ from tf_keras.models import Model
 # --------------------------------
 
 # Import your MongoDB collection from database.py
-from database import users_collection, species_collection
+from database import users_collection, species_collection, forum_collection
 
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -269,6 +270,119 @@ def get_fish_info():
         return jsonify(fish_list), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+# ==========================================
+# COMMUNITY FORUM ROUTES
+# ==========================================
+
+# 1. Get all forum posts (Sorted by newest first)
+@app.route('/api/forum', methods=['GET'])
+def get_forum_posts():
+    try:
+        # Fetch all posts, sort by Timestamp descending (-1)
+        posts = list(forum_collection.find().sort("Timestamp", -1))
+        
+        # Convert the MongoDB ObjectId to a string so React can read it
+        for post in posts:
+            post['_id'] = str(post['_id'])
+            
+        return jsonify(posts), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# 2. Create a new forum post
+@app.route('/api/forum', methods=['POST'])
+def create_forum_post():
+    data = request.json
+    title = data.get('title')
+    content = data.get('content')
+    username = data.get('username') # We will get this from React's localStorage
+
+    if not title or not content or not username:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    new_post = {
+        "Title": title,
+        "Content": content,
+        "Username": username, # Matches the User who created it
+        "Timestamp": datetime.now(timezone.utc),
+        "Comments": [] # Starts with an empty array for future comments!
+    }
+    
+    result = forum_collection.insert_one(new_post)
+    return jsonify({"message": "Post created successfully!", "id": str(result.inserted_id)}), 201
+
+# 3. Add a comment to a specific post
+@app.route('/api/forum/<post_id>/comment', methods=['POST'])
+def add_comment(post_id):
+    data = request.json
+    content = data.get('content')
+    username = data.get('username')
+
+    if not content or not username:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    new_comment = {
+        "Content": content,
+        "Username": username,
+        "Timestamp": datetime.now(timezone.utc)
+    }
+
+    try:
+        # Push the new comment into the specific post's 'Comments' array
+        forum_collection.update_one(
+            {"_id": ObjectId(post_id)},
+            {"$push": {"Comments": new_comment}}
+        )
+        return jsonify({"message": "Comment added successfully!"}), 201
+    except Exception as e:
+        return jsonify({"error": "Failed to add comment"}), 500
+    
+# 4. Toggle a Like on a post
+@app.route('/api/forum/<post_id>/like', methods=['POST'])
+def toggle_like(post_id):
+    data = request.json
+    username = data.get('username')
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
+
+    try:
+        post = forum_collection.find_one({"_id": ObjectId(post_id)})
+        if post:
+            liked_by = post.get("LikedBy", [])
+            # If the user already liked it, remove their like (unlike)
+            if username in liked_by:
+                forum_collection.update_one(
+                    {"_id": ObjectId(post_id)}, 
+                    {"$pull": {"LikedBy": username}}
+                )
+            # If they haven't liked it yet, add their username
+            else:
+                forum_collection.update_one(
+                    {"_id": ObjectId(post_id)}, 
+                    {"$addToSet": {"LikedBy": username}}
+                )
+            return jsonify({"message": "Like toggled successfully!"}), 200
+        return jsonify({"error": "Post not found"}), 404
+    except Exception as e:
+        return jsonify({"error": "Failed to toggle like"}), 500
+
+# 5. Delete a post (Only if the username matches the author)
+@app.route('/api/forum/<post_id>', methods=['DELETE'])
+def delete_post(post_id):
+    data = request.json
+    username = data.get('username')
+
+    try:
+        # We check BOTH the post ID and the Username to prevent hacking/deleting other people's posts!
+        result = forum_collection.delete_one({"_id": ObjectId(post_id), "Username": username})
+        if result.deleted_count == 1:
+            return jsonify({"message": "Post deleted successfully!"}), 200
+        else:
+            return jsonify({"error": "Not authorized or post not found"}), 403
+    except Exception as e:
+        return jsonify({"error": "Failed to delete post"}), 500
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True, use_reloader=False)
