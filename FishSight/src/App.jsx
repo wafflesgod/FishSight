@@ -12,6 +12,7 @@ import SignIn from './pages/Signin';
 import Register from './pages/Register';
 import FishId from './pages/FishId';
 import FishInfo from './pages/FishInfo';
+import Forum from './pages/Forum';
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function App() {
             
             {/* 2. Placeholders */}
             <Route path="/chatbot" element={<Chatbot />} />
-            <Route path="/forum" element={<div style={{textAlign:'center', marginTop: '50px'}}><h2>Forum Page</h2></div>} />
+            <Route path="/forum" element={<Forum />} />
 
             {/* 3. Auth Pages */}
             <Route path="/signin" element={<SignIn />} />
