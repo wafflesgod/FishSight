@@ -177,3 +177,11 @@
     margin: 0;
   }
 }
+
+/* --- RESPONSIVE DESIGN (Desktop Override) --- */
+/* This forces the mobile menu to hide if the user resizes the window back to desktop size */
+@media (min-width: 850px) {
+  .mobile-dropdown {
+    display: none !important;
+  }
+}
