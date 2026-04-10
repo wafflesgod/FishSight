@@ -384,5 +384,45 @@ def delete_post(post_id):
     except Exception as e:
         return jsonify({"error": "Failed to delete post"}), 500
 
+# 6. AI Summarize a Forum Post
+@app.route('/api/forum/<post_id>/summarize', methods=['GET'])
+def summarize_post(post_id):
+    try:
+        post = forum_collection.find_one({"_id": ObjectId(post_id)})
+        if not post:
+            return jsonify({"error": "Post not found"}), 404
+
+        # 1. Gather all the text
+        title = post.get("Title", "")
+        main_content = post.get("Content", "")
+        comments = post.get("Comments", [])
+
+        if not comments:
+            return jsonify({"summary": "There are no comments yet! Be the first to reply."})
+
+        # 2. Mash it into a single readable script for the AI
+        discussion_text = f"Title: {title}\nOriginal Post: {main_content}\n\nComments:\n"
+        for c in comments:
+            discussion_text += f"- {c['Username']}: {c['Content']}\n"
+
+        # 3. Create the strict prompt for LLaMA 3.1
+        prompt = f"""
+        You are a helpful Aquarium Expert AI. 
+        Read the following forum discussion and provide a very brief, 2-to-3 sentence summary of the community's consensus or the solution provided.
+        Do not use any formatting like bolding or asterisks. Keep it plain text.
+        
+        DISCUSSION:
+        {discussion_text}
+        """
+
+        # 4. Ask the AI!
+        response = llm.invoke(prompt)
+        
+        return jsonify({"summary": response.content}), 200
+
+    except Exception as e:
+        print(f"Summarize Error: {e}")
+        return jsonify({"error": "Failed to generate summary"}), 500
+
 if __name__ == '__main__':
     app.run(port=5000, debug=True, use_reloader=False)
