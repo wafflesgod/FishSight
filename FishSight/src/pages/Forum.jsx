@@ -15,7 +15,10 @@ const Forum = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterMyPosts, setFilterMyPosts] = useState(false); // Controls the "My Posts" toggle
   
-  const [commentInputs, setCommentInputs] = useState({});
+    const [commentInputs, setCommentInputs] = useState({});
+
+    const [summaries, setSummaries] = useState({}); // Stores the AI responses
+    const [isSummarizing, setIsSummarizing] = useState({}); // Tracks loading state
 
   const currentUser = localStorage.getItem('username'); 
 
@@ -86,6 +89,18 @@ const Forum = () => {
       fetchPosts(); // Refresh feed to update like count
     } catch (error) {
       alert("Failed to like post.");
+    }
+  };
+
+  const handleSummarize = async (postId) => {
+    setIsSummarizing({ ...isSummarizing, [postId]: true }); 
+    try {
+      const data = await ForumService.summarizePost(postId);
+      setSummaries({ ...summaries, [postId]: data.summary }); 
+    } catch (error) {
+      alert("Failed to generate AI summary.");
+    } finally {
+      setIsSummarizing({ ...isSummarizing, [postId]: false }); 
     }
   };
 
@@ -197,12 +212,27 @@ const Forum = () => {
                 
                 <p className="post-content">{post.Content}</p>
 
-                {/* LIKE BUTTON SECTION */}
+                {/* LIKE BUTTON & AI SUMMARIZE SECTION */}
                 <div className="post-actions">
                   <button className={`btn-like ${hasLiked ? 'liked' : ''}`} onClick={() => handleToggleLike(post._id)}>
                     {hasLiked ? '❤️' : '🤍'} {likeCount} {likeCount === 1 ? 'Like' : 'Likes'}
                   </button>
+                  
+                  {/* NEW: AI Summarize Button (Only shows if there are comments!) */}
+                  {post.Comments && post.Comments.length > 0 && (
+                    <button className="btn-ai-summary" onClick={() => handleSummarize(post._id)} disabled={isSummarizing[post._id]}>
+                      {isSummarizing[post._id] ? "⏳ AI is reading..." : "✨ AI Summary"}
+                    </button>
+                  )}
                 </div>
+
+                {/* NEW: Display the AI Summary Box if it exists */}
+                {summaries[post._id] && (
+                  <div className="ai-summary-box">
+                    <strong>🤖 FishSight AI Summary:</strong>
+                    <p>{summaries[post._id]}</p>
+                  </div>
+                )}
 
                 {/* COMMENTS SECTION */}
                 <div className="comments-section">

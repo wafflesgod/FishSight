@@ -322,7 +322,12 @@
 }
 
 .post-actions {
+  display: flex;
+  flex-direction: row; /* Forces the buttons to sit side-by-side */
+  align-items: center; /* Vertically centers them so they look neat */
+  gap: 12px; /* Adds a nice gap between the Like and AI buttons */
   margin-bottom: 1.5rem;
+  flex-wrap: wrap; /* If a user is on a tiny mobile screen, this allows it to wrap safely instead of squishing */
 }
 
 .btn-like {
@@ -347,4 +352,46 @@
 
 .btn-like:hover {
   background-color: #f1f5f9;
+}
+
+.btn-ai-summary {
+  background: linear-gradient(135deg, #00897B 0%, #00695C 100%);
+  color: white;
+  border: none;
+  padding: 6px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-ai-summary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 137, 123, 0.3);
+}
+
+.btn-ai-summary:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.ai-summary-box {
+  background-color: #f0fdfa;
+  border-left: 4px solid #00897B;
+  padding: 15px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.ai-summary-box strong {
+  color: #00695C;
+  display: block;
+  margin-bottom: 5px;
 }
