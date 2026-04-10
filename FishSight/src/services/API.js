@@ -76,4 +76,7 @@ export const ForumService = {
   // ADD THESE TWO LINES:
   toggleLike: (postId, userData) => apiRequest(`/api/forum/${postId}/like`, "POST", userData),
   deletePost: (postId, userData) => apiRequest(`/api/forum/${postId}`, "DELETE", userData),
+
+  // ADD THIS NEW LINE:
+  summarizePost: (postId) => apiRequest(`/api/forum/${postId}/summarize`, "GET"),
 };
