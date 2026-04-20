@@ -1,1 +1,1 @@
-web: gunicorn app:app
+web: cd FishSight/src/backend && gunicorn app:app
