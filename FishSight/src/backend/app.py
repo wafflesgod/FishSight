@@ -60,25 +60,25 @@ print("🤖 Smart Aquarium Bot is Ready!")
 # ==========================================
 # LOAD VISION MODEL (THE SHELL & WEIGHTS TRICK)
 # ==========================================
-print("Loading Fish Recognition Model...")
-model_path = os.path.join(script_dir, "resnet50.h5") 
+#print("Loading Fish Recognition Model...")
+#model_path = os.path.join(script_dir, "resnet50.h5") 
 
-try:
+#try:
     # 1. Build the exact empty shell of your Colab model
-    base_model = ResNet50(weights=None, include_top=False, input_shape=(224, 224, 3))
-    x = base_model.output
-    x = GlobalAveragePooling2D()(x)
-    x = Dropout(0.5)(x)
-    predictions = Dense(12, activation='softmax')(x)
+#    base_model = ResNet50(weights=None, include_top=False, input_shape=(224, 224, 3))
+#    x = base_model.output
+#    x = GlobalAveragePooling2D()(x)
+#    x = Dropout(0.5)(x)
+#    predictions = Dense(12, activation='softmax')(x)
     
-    fish_model = Model(inputs=base_model.input, outputs=predictions)
+#    fish_model = Model(inputs=base_model.input, outputs=predictions)
 
     # 2. Pour your trained weights into the shell! (Bypasses version errors completely)
-    fish_model.load_weights(model_path)
-    print("✅ Vision Model is Ready!")
-except Exception as e:
-    print(f"⚠️ Could not load Vision Model: {e}")
-    fish_model = None
+#    fish_model.load_weights(model_path)
+#    print("✅ Vision Model is Ready!")
+#except Exception as e:
+#    print(f"⚠️ Could not load Vision Model: {e}")
+#    fish_model = None
 
 FISH_CLASSES = [
     "Angel Fish",
@@ -102,8 +102,8 @@ FISH_CLASSES = [
 def predict():
     print("🚀 /predict endpoint hit")
 
-    if fish_model is None:
-        return jsonify({"error": "Vision model is not loaded on the server"}), 500
+#    if fish_model is None:
+#        return jsonify({"error": "Vision model is not loaded on the server"}), 500
 
     if 'file' not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
@@ -114,6 +114,20 @@ def predict():
         return jsonify({"error": "No selected file"}), 400
     
     try:
+        # --- 1. LOAD MODEL JUST IN TIME ---
+        print("Loading Fish Recognition Model into RAM...")
+        model_path = os.path.join(script_dir, "resnet50.h5")
+
+        base_model = ResNet50(weights=None, include_top=False, input_shape=(224, 224, 3))
+        x = base_model.output
+        x = GlobalAveragePooling2D()(x)
+        x = Dropout(0.5)(x)
+        predictions = Dense(12, activation='softmax')(x)
+        
+        fish_model = Model(inputs=base_model.input, outputs=predictions)
+        fish_model.load_weights(model_path)
+
+        # --- 2. PROCESS IMAGE ---
         image_bytes = file.read()
         img = Image.open(io.BytesIO(image_bytes)).convert('RGB')
         img = img.resize((224, 224))
@@ -126,13 +140,21 @@ def predict():
         predictions = fish_model.predict(img_array)
         print("📊 Predictions Array:", predictions)
 
-        # --- CALCULATE THE RESULT (Restored from your earlier code!) ---
+        # --- 3. NUKE THE MODEL FROM RAM IMMEDIATELY ---
+        del fish_model
+        del base_model
+        keras.backend.clear_session() # Crucial for freeing up TensorFlow memory
+        import gc
+        gc.collect()
+        print("🧹 Model cleared from RAM!")
+
+        # --- 4. CALCULATE THE RESULT ---
         predicted_class_index = np.argmax(predictions[0])
         confidence_score = float(np.max(predictions[0])) * 100
         predicted_species = FISH_CLASSES[predicted_class_index]
         # ---------------------------------------------------------------
 
-        # --- DATABASE QUERY (NEW!) ---
+        # --- DATABASE QUERY ---
         # Search MongoDB for the exact fish name we just predicted
         species_data = species_collection.find_one({"CommonName": predicted_species})
 
