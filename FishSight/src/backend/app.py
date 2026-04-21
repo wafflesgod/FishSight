@@ -46,11 +46,11 @@ if not os.path.exists(index_path):
     print("ERROR: Index not found! Run setup_database.py first.")
 
 # Keep ChatGroq global! It is just a lightweight API wrapper and uses almost 0 RAM.
-llm = ChatGroq(
-    temperature=0.0, 
-    model_name="llama-3.1-8b-instant", 
-    api_key=groq_api_key
-)
+#llm = ChatGroq(
+#    temperature=0.0, 
+#    model_name="llama-3.1-8b-instant", 
+#    api_key=groq_api_key
+#)
 
 print("🤖 Smart Aquarium Bot is Ready!")
 
