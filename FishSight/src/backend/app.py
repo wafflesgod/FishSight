@@ -119,7 +119,7 @@ def predict():
         from tf_keras.models import Model
         # --- 1. LOAD MODEL JUST IN TIME ---
         print("Loading Fish Recognition Model into RAM...")
-        model_path = os.path.join(script_dir, "resnet50.h5")
+        model_path = os.path.join(script_dir, "resnet50.tflite")
 
         base_model = ResNet50(weights=None, include_top=False, input_shape=(224, 224, 3))
         x = base_model.output
