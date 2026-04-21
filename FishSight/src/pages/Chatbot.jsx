@@ -32,7 +32,7 @@ const Chatbot = () => {
       const history = newMessages.slice(-6); 
 
       // 3. Send to Backend
-      const response = await axios.post('http://127.0.0.1:5000/chat', {
+      const response = await axios.post('https://fishsight.onrender.com/chat', {
         message: input,
         history: history // <--- This fixes the "Amnesia"
       });
