@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FishService } from '../services/api'; // NEW: Import your API service
+import { FishService } from '../services/API'; // NEW: Import your API service
 import './FishId.css';
 
 const FishId = () => {
