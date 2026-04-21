@@ -2,7 +2,8 @@ import os
 import traceback
 import numpy as np
 from PIL import Image
-import io
+import io 
+import gc
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,18 +12,18 @@ from datetime import datetime, timezone
 from bson.objectid import ObjectId
 
 # --- THE MAGIC BULLET IMPORTS ---
-import tf_keras as keras
-from tf_keras.applications.resnet50 import ResNet50, preprocess_input
-from tf_keras.layers import Dense, GlobalAveragePooling2D, Dropout
-from tf_keras.models import Model
+#import tf_keras as keras
+#from tf_keras.applications.resnet50 import ResNet50, preprocess_input
+#from tf_keras.layers import Dense, GlobalAveragePooling2D, Dropout
+#from tf_keras.models import Model
 # --------------------------------
 
 # Import your MongoDB collection from database.py
 from database import users_collection, species_collection, forum_collection
 
-from langchain_groq import ChatGroq
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS
+#from langchain_groq import ChatGroq
+#from langchain_huggingface import HuggingFaceEmbeddings
+#from langchain_community.vectorstores import FAISS
 
 print("🔥 NEW VERSION OF app.py RUNNING")
 
@@ -110,6 +111,12 @@ def predict():
         return jsonify({"error": "No selected file"}), 400
     
     try:
+        # --- HIDDEN IMPORTS ---
+        print("Importing Keras inside the route...")
+        import tf_keras as keras
+        from tf_keras.applications.resnet50 import ResNet50, preprocess_input
+        from tf_keras.layers import Dense, GlobalAveragePooling2D, Dropout
+        from tf_keras.models import Model
         # --- 1. LOAD MODEL JUST IN TIME ---
         print("Loading Fish Recognition Model into RAM...")
         model_path = os.path.join(script_dir, "resnet50.h5")
@@ -239,6 +246,15 @@ def chat():
         return jsonify({"error": "No message provided"}), 400
 
     try:
+        # --- HIDDEN IMPORTS ---
+        print("Importing LangChain inside the route...")
+        from langchain_groq import ChatGroq
+        from langchain_huggingface import HuggingFaceEmbeddings
+        from langchain_community.vectorstores import FAISS
+
+        groq_api_key = os.getenv("GROQ_API_KEY") 
+        llm = ChatGroq(temperature=0.0, model_name="llama-3.1-8b-instant", api_key=groq_api_key)
+
         # --- 1. LOAD THE RAG BRAIN INTO RAM ---
         print("🧠 Loading HuggingFace Embeddings...")
         embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
@@ -259,7 +275,6 @@ def chat():
         del retriever
         del vector_store
         del embeddings
-        import gc
         gc.collect()
         print("🧹 RAG Models cleared from RAM!")
 
