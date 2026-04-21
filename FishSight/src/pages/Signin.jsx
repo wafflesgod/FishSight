@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthService } from '../services/api'; // Importing your API setup
+import { AuthService } from '../services/API'; // Importing your API setup
 import './Auth.css'; // Import the shared styles
 
 const SignIn = () => {

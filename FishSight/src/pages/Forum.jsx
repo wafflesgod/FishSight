@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ForumService } from '../services/api';
+import { ForumService } from '../services/API';
 import './Forum.css';
 
 const Forum = () => {

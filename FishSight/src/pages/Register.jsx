@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthService } from '../services/api'; 
+import { AuthService } from '../services/API'; 
 import './Auth.css';
 
 const Register = () => {
