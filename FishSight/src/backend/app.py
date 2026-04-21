@@ -33,22 +33,18 @@ app = Flask(__name__)
 CORS(app)  
 
 # ==========================================
-# CONFIGURATION & BRAIN LOAD
+# CONFIGURATION & BRAIN LOAD (UPDATED)
 # ==========================================
 groq_api_key = os.getenv("GROQ_API_KEY") 
 
-print("Loading Aquarium Brain...")
+print("Loading Aquarium Brain Paths...")
 script_dir = os.path.dirname(os.path.abspath(__file__))
 index_path = os.path.join(script_dir, "aquarium_index")
 
 if not os.path.exists(index_path):
     print("ERROR: Index not found! Run setup_database.py first.")
-    exit()
 
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-vector_store = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
-retriever = vector_store.as_retriever(search_kwargs={"k": 3}) 
-
+# Keep ChatGroq global! It is just a lightweight API wrapper and uses almost 0 RAM.
 llm = ChatGroq(
     temperature=0.0, 
     model_name="llama-3.1-8b-instant", 
@@ -231,7 +227,7 @@ def login():
 
 
 # ==========================================
-# THE CHAT ROUTE
+# THE CHAT ROUTE (LAZY LOADING APPLIED)
 # ==========================================
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -242,43 +238,62 @@ def chat():
     if not user_input:
         return jsonify({"error": "No message provided"}), 400
 
-    search_query = user_input
-    last_user_message = next((msg['text'] for msg in reversed(history) if msg['sender'] == 'user'), None)
-
-    if last_user_message and len(user_input.split()) < 5:
-        search_query = f"{last_user_message} {user_input}"
-
-    docs = retriever.invoke(search_query)
-    context_text = "\n\n".join([doc.page_content for doc in docs])
-
-    conversation_text = ""
-    for msg in history[-5:]: 
-        role = "User" if msg['sender'] == 'user' else "Assistant"
-        conversation_text += f"{role}: {msg['text']}\n"
-
-    prompt = f"""
-    You are a helpful Aquarium Assistant.
-    
-    PAST CONVERSATION:
-    {conversation_text}
-    
-    RELEVANT KNOWLEDGE FROM DATABASE:
-    {context_text}
-    
-    CURRENT USER QUESTION:
-    {user_input}
-    
-    INSTRUCTIONS:
-    - Use the RELEVANT KNOWLEDGE to answer.
-    - If the user says "Yes" or "What about it?", look at PAST CONVERSATION to understand context.
-    - Keep answers concise and friendly.
-    """
-    
     try:
+        # --- 1. LOAD THE RAG BRAIN INTO RAM ---
+        print("🧠 Loading HuggingFace Embeddings...")
+        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        vector_store = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
+        retriever = vector_store.as_retriever(search_kwargs={"k": 3}) 
+
+        # --- 2. DO THE SEARCH ---
+        search_query = user_input
+        last_user_message = next((msg['text'] for msg in reversed(history) if msg['sender'] == 'user'), None)
+
+        if last_user_message and len(user_input.split()) < 5:
+            search_query = f"{last_user_message} {user_input}"
+
+        docs = retriever.invoke(search_query)
+        context_text = "\n\n".join([doc.page_content for doc in docs])
+
+        # --- 3. NUKE RAG FROM RAM IMMEDIATELY ---
+        del retriever
+        del vector_store
+        del embeddings
+        import gc
+        gc.collect()
+        print("🧹 RAG Models cleared from RAM!")
+
+        # --- 4. TALK TO GROQ ---
+        conversation_text = ""
+        for msg in history[-5:]: 
+            role = "User" if msg['sender'] == 'user' else "Assistant"
+            conversation_text += f"{role}: {msg['text']}\n"
+
+        prompt = f"""
+        You are a helpful Aquarium Assistant.
+        
+        PAST CONVERSATION:
+        {conversation_text}
+        
+        RELEVANT KNOWLEDGE FROM DATABASE:
+        {context_text}
+        
+        CURRENT USER QUESTION:
+        {user_input}
+        
+        INSTRUCTIONS:
+        - Use the RELEVANT KNOWLEDGE to answer.
+        - If the user says "Yes" or "What about it?", look at PAST CONVERSATION to understand context.
+        - Keep answers concise and friendly.
+        """
+        
         response = llm.invoke(prompt)
         return jsonify({"response": response.content})
+        
     except Exception as e:
         print(f"Error: {e}")
+        import gc
+        gc.collect() # Always clean up memory on error
         return jsonify({"error": str(e)}), 500
 
 # ==========================================
