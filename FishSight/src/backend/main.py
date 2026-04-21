@@ -9,7 +9,7 @@ from models import UserCreate, UserResponse
 app = FastAPI()
 
 # Allow React to talk to this Backend
-origins = ["http://localhost:5173"]
+origins = ["https://fishsight.onrender.com"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
