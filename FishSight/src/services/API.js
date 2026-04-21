@@ -2,7 +2,7 @@
 
 // 1. Define the Base URL
 // When you deploy to Vercel, you will change this to your Render URL.
-const API_BASE_URL = "http://localhost:5000"; // Default Python port
+const API_BASE_URL = "https://fishsight.onrender.com"; // Default Python port
 
 // 2. Generic Helper Function for API calls
 const apiRequest = async (endpoint, method = "GET", body = null) => {
