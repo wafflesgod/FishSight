@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import './Chatbot.css'; // Ensure this file exists for styling
+// 1. We removed axios and imported ChatService instead!
+import { ChatService } from '../services/api'; 
+import './Chatbot.css'; 
 
 const Chatbot = () => {
   const [input, setInput] = useState('');
+  // 2. Updated the greeting to focus only on fish!
   const [messages, setMessages] = useState([
-    { sender: 'bot', text: 'Hello! I am your Aquarium Assistant. Ask me about your fish or plants! 🐟' }
+    { sender: 'bot', text: 'Hello! I am your Aquarium Assistant. Ask me about your fish! 🐟' }
   ]);
   const [loading, setLoading] = useState(false);
   
@@ -21,7 +23,7 @@ const Chatbot = () => {
 
     // 1. Add User Message
     const userMessage = { sender: 'user', text: input };
-    const newMessages = [...messages, userMessage]; // Temporary variable to hold current state
+    const newMessages = [...messages, userMessage]; 
     
     setMessages(newMessages);
     setLoading(true);
@@ -31,14 +33,14 @@ const Chatbot = () => {
       // 2. Prepare History (Send last 6 messages to Python)
       const history = newMessages.slice(-6); 
 
-      // 3. Send to Backend
-      const response = await axios.post('https://fishsight.onrender.com/chat', {
+      // 3. Send to Backend using your clean ChatService!
+      const data = await ChatService.sendMessage({
         message: input,
-        history: history // <--- This fixes the "Amnesia"
+        history: history 
       });
 
-      // 4. Add Bot Response
-      const botMessage = { sender: 'bot', text: response.data.response };
+      // 4. Add Bot Response (API.js already handles the .json() parsing)
+      const botMessage = { sender: 'bot', text: data.response };
       setMessages((prev) => [...prev, botMessage]);
       
     } catch (error) {
@@ -71,7 +73,8 @@ const Chatbot = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-            placeholder="Ask about Nymphaea zenkeri..."
+            // 3. Updated placeholder text!
+            placeholder="Ask about Neon Tetras..."
             disabled={loading}
           />
           <button onClick={sendMessage} disabled={loading}>

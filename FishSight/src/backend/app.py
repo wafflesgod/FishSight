@@ -112,61 +112,60 @@ def predict():
     
     try:
         # --- HIDDEN IMPORTS ---
-        print("Importing Keras inside the route...")
-        import tf_keras as keras
-        from tf_keras.applications.resnet50 import ResNet50, preprocess_input
-        from tf_keras.layers import Dense, GlobalAveragePooling2D, Dropout
-        from tf_keras.models import Model
-        # --- 1. LOAD MODEL JUST IN TIME ---
-        print("Loading Fish Recognition Model into RAM...")
-        model_path = os.path.join(script_dir, "resnet50.tflite")
-
-        base_model = ResNet50(weights=None, include_top=False, input_shape=(224, 224, 3))
-        x = base_model.output
-        x = GlobalAveragePooling2D()(x)
-        x = Dropout(0.5)(x)
-        predictions = Dense(12, activation='softmax')(x)
+        print("Importing tools for TFLite...")
+        import tensorflow as tf
+        import numpy as np
+        from PIL import Image
+        import io
+        from tf_keras.applications.resnet50 import preprocess_input
         
-        fish_model = Model(inputs=base_model.input, outputs=predictions)
-        fish_model.load_weights(model_path)
+        # --- 1. LOAD TFLITE MODEL JUST IN TIME ---
+        print("Loading TFLite Model into RAM...")
+        # Note: Make sure the file is named exactly this in your backend folder!
+        model_path = os.path.join(script_dir, "resnet50.tflite") 
+        
+        # The TFLite Interpreter replaces the heavy Keras model builder
+        interpreter = tf.lite.Interpreter(model_path=model_path)
+        interpreter.allocate_tensors()
+        
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
 
         # --- 2. PROCESS IMAGE ---
         image_bytes = file.read()
         img = Image.open(io.BytesIO(image_bytes)).convert('RGB')
         img = img.resize((224, 224))
 
-        img_array = keras.preprocessing.image.img_to_array(img)
+        # Convert to float32 array, which TFLite requires
+        img_array = np.array(img, dtype=np.float32)
         img_array = np.expand_dims(img_array, axis=0)
         img_array = preprocess_input(img_array)
 
-        # Get the prediction array
-        predictions = fish_model.predict(img_array)
-        print("📊 Predictions Array:", predictions)
+        # --- 3. RUN THE FAST PREDICTION ---
+        interpreter.set_tensor(input_details[0]['index'], img_array)
+        interpreter.invoke()
+        predictions_array = interpreter.get_tensor(output_details[0]['index'])
+        
+        print("📊 Predictions Array:", predictions_array)
 
-        # --- 3. NUKE THE MODEL FROM RAM IMMEDIATELY ---
-        del fish_model
-        del base_model
-        keras.backend.clear_session() # Crucial for freeing up TensorFlow memory
+        # --- 4. NUKE THE MODEL FROM RAM IMMEDIATELY ---
+        del interpreter
         import gc
         gc.collect()
-        print("🧹 Model cleared from RAM!")
+        print("🧹 TFLite cleared from RAM!")
 
-        # --- 4. CALCULATE THE RESULT ---
-        predicted_class_index = np.argmax(predictions[0])
-        confidence_score = float(np.max(predictions[0])) * 100
+        # --- 5. CALCULATE THE RESULT ---
+        predicted_class_index = np.argmax(predictions_array[0])
+        confidence_score = float(np.max(predictions_array[0])) * 100
         predicted_species = FISH_CLASSES[predicted_class_index]
-        # ---------------------------------------------------------------
 
         # --- DATABASE QUERY ---
-        # Search MongoDB for the exact fish name we just predicted
         species_data = species_collection.find_one({"CommonName": predicted_species})
 
         if species_data:
-            # Format the data nicely for the frontend
             care_level = f"Temp: {species_data.get('Temp_Range')} | pH: {species_data.get('PH_Range')} | Diet: {species_data.get('Diet')}"
             notes = species_data.get('Description')
         else:
-            # Fallback if the fish isn't in the database yet
             care_level = "Check Fish Info tab for details"
             notes = "Analysis complete."
 
