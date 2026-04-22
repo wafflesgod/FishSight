@@ -33,6 +33,22 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)  
 
+import tensorflow as tf
+
+print("Loading Fast TFLite Model into RAM...")
+script_dir = os.path.dirname(os.path.abspath(__file__))
+tflite_model_path = os.path.join(script_dir, "resnet50.tflite") 
+
+try:
+    interpreter = tf.lite.Interpreter(model_path=tflite_model_path)
+    interpreter.allocate_tensors()
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+    print("✅ Vision Model Ready!")
+except Exception as e:
+    print(f"⚠️ TFLite Error: {e}")
+    interpreter = None
+
 # ==========================================
 # CONFIGURATION & BRAIN LOAD (UPDATED)
 # ==========================================
@@ -112,24 +128,19 @@ def predict():
     
     try:
         # --- HIDDEN IMPORTS ---
-        print("Importing tools for TFLite...")
-        import tensorflow as tf
-        import numpy as np
-        from PIL import Image
-        import io
         from tf_keras.applications.resnet50 import preprocess_input
         
         # --- 1. LOAD TFLITE MODEL JUST IN TIME ---
-        print("Loading TFLite Model into RAM...")
+        #print("Loading TFLite Model into RAM...")
         # Note: Make sure the file is named exactly this in your backend folder!
-        model_path = os.path.join(script_dir, "resnet50.tflite") 
+        #model_path = os.path.join(script_dir, "resnet50.tflite") 
         
         # The TFLite Interpreter replaces the heavy Keras model builder
-        interpreter = tf.lite.Interpreter(model_path=model_path)
-        interpreter.allocate_tensors()
+        #interpreter = tf.lite.Interpreter(model_path=model_path)
+        #interpreter.allocate_tensors()
         
-        input_details = interpreter.get_input_details()
-        output_details = interpreter.get_output_details()
+        #input_details = interpreter.get_input_details()
+        #output_details = interpreter.get_output_details()
 
         # --- 2. PROCESS IMAGE ---
         image_bytes = file.read()
@@ -146,13 +157,13 @@ def predict():
         interpreter.invoke()
         predictions_array = interpreter.get_tensor(output_details[0]['index'])
         
-        print("📊 Predictions Array:", predictions_array)
+        #print("📊 Predictions Array:", predictions_array)
 
         # --- 4. NUKE THE MODEL FROM RAM IMMEDIATELY ---
-        del interpreter
-        import gc
-        gc.collect()
-        print("🧹 TFLite cleared from RAM!")
+        #del interpreter
+        #import gc
+        #gc.collect()
+        #print("🧹 TFLite cleared from RAM!")
 
         # --- 5. CALCULATE THE RESULT ---
         predicted_class_index = np.argmax(predictions_array[0])
