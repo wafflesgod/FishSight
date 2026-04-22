@@ -250,7 +250,6 @@ def chat():
         print("Importing LangChain libraries...")
         from langchain_groq import ChatGroq
         # 1. NEW: Import the Cloud API version of HuggingFace Embeddings
-        from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
         from langchain_community.vectorstores import FAISS
         print("✅ LangChain imports successful!")
 
@@ -264,13 +263,15 @@ def chat():
         #embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
         # --- 1. LOAD THE RAG BRAIN USING CLOUD API ---
-        print("🧠 Connecting to Hugging Face Cloud API...")
+        print("☁️ Connecting to Hugging Face Cloud API...")
         hf_token = os.getenv("HF_TOKEN")
                 
-        # 2. NEW: Use the Inference API so it uses 0 RAM on your server!
-        embeddings = HuggingFaceInferenceAPIEmbeddings(
-            api_key=hf_token, 
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        # NEW, STABLE CODE
+        from langchain_huggingface import HuggingFaceEndpointEmbeddings
+        embeddings = HuggingFaceEndpointEmbeddings(
+            model="sentence-transformers/all-MiniLM-L6-v2",
+            task="feature-extraction",
+            huggingfacehub_api_token=hf_token
         )
         print("✅ Cloud Embeddings Connected!")
 
@@ -468,7 +469,7 @@ def summarize_post(post_id):
             return jsonify({"error": "Missing Groq API Key"}), 500
             
         llm = ChatGroq(temperature=0.0, model_name="llama-3.1-8b-instant", api_key=groq_api_key)
-        
+
         post = forum_collection.find_one({"_id": ObjectId(post_id)})
         if not post:
             return jsonify({"error": "Post not found"}), 404
