@@ -459,6 +459,16 @@ def delete_post(post_id):
 @app.route('/api/forum/<post_id>/summarize', methods=['GET'])
 def summarize_post(post_id):
     try:
+        # --- 1. ADD THIS MISSING SETUP ---
+        from langchain_groq import ChatGroq
+        import os
+        
+        groq_api_key = os.getenv("GROQ_API_KEY")
+        if not groq_api_key:
+            return jsonify({"error": "Missing Groq API Key"}), 500
+            
+        llm = ChatGroq(temperature=0.0, model_name="llama-3.1-8b-instant", api_key=groq_api_key)
+        
         post = forum_collection.find_one({"_id": ObjectId(post_id)})
         if not post:
             return jsonify({"error": "Post not found"}), 404
