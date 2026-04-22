@@ -259,15 +259,30 @@ def chat():
         # --- HIDDEN IMPORTS ---
         print("Importing LangChain inside the route...")
         from langchain_groq import ChatGroq
-        from langchain_huggingface import HuggingFaceEmbeddings
+        # 1. NEW: Import the Cloud API version of HuggingFace Embeddings
+        from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
         from langchain_community.vectorstores import FAISS
 
         groq_api_key = os.getenv("GROQ_API_KEY") 
         llm = ChatGroq(temperature=0.0, model_name="llama-3.1-8b-instant", api_key=groq_api_key)
 
         # --- 1. LOAD THE RAG BRAIN INTO RAM ---
-        print("🧠 Loading HuggingFace Embeddings...")
-        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        #print("🧠 Loading HuggingFace Embeddings...")
+        #embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+        # --- 1. LOAD THE RAG BRAIN USING CLOUD API ---
+        print("🧠 Connecting to Hugging Face Cloud API...")
+        hf_token = os.getenv("HF_TOKEN")
+        
+        if not hf_token:
+            return jsonify({"error": "HF_TOKEN is missing on the server"}), 500
+
+        # 2. NEW: Use the Inference API so it uses 0 RAM on your server!
+        embeddings = HuggingFaceInferenceAPIEmbeddings(
+            api_key=hf_token, 
+            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        )
+
         vector_store = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
         retriever = vector_store.as_retriever(search_kwargs={"k": 3}) 
 
