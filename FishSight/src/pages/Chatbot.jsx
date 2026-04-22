@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 // 1. We removed axios and imported ChatService instead!
-import { ChatService } from '../services/api'; 
+import { ChatService } from '../services/API'; 
 import './Chatbot.css'; 
 
 const Chatbot = () => {
