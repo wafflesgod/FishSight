@@ -296,7 +296,7 @@ def chat():
         docs = []
         
         # The model might be asleep. We will try up to 3 times!
-        for attempt in range(3):
+        for attempt in range(4):
             try:
                 # Ask LangChain to search
                 docs = retriever.invoke(search_query)
