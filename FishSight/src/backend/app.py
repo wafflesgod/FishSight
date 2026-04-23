@@ -288,7 +288,36 @@ def chat():
         if last_user_message and len(user_input.split()) < 5:
             search_query = f"{last_user_message} {user_input}"
 
-        docs = retriever.invoke(search_query)
+        #docs = retriever.invoke(search_query)
+        #context_text = "\n\n".join([doc.page_content for doc in docs])
+
+        # --- 5. THE RETRY MECHANISM ---
+        import time
+        docs = []
+        
+        # The model might be asleep. We will try up to 3 times!
+        for attempt in range(3):
+            try:
+                # Ask LangChain to search
+                docs = retriever.invoke(search_query)
+                print("✅ Search successful!")
+                break # It worked! Break out of the loop.
+                
+            except Exception as e:
+                # If we get the dictionary crash, wait 10 seconds and retry
+                if 'replace' in str(e) or 'dict' in str(e):
+                    print(f"😴 Hugging Face is asleep. Waiting 10s to wake it up (Attempt {attempt + 1}/3)...")
+                    time.sleep(10)
+                else:
+                    # If it's a different error, raise it normally
+                    raise e 
+        else:
+            # If it fails all 3 times, reply to the frontend gracefully instead of crashing
+            return jsonify({
+                "response": "My memory banks are just waking up! 🐟 Please click send again in about 15 seconds."
+            })
+
+        # --- 6. CONTINUE AS NORMAL ---
         context_text = "\n\n".join([doc.page_content for doc in docs])
 
         # --- 3. NUKE RAG FROM RAM IMMEDIATELY ---
