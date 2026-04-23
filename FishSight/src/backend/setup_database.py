@@ -4,7 +4,7 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter 
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
 
 # Load environment variables
@@ -50,9 +50,10 @@ print("Splitting data into chunks...")
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 chunks = text_splitter.split_documents(documents)
 
-# 4. Create Embeddings
-print("Converting text to numbers...")
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+# 4. Create Embeddings with Google
+print("Converting text to numbers using Google Generative AI...")
+# Ensure GOOGLE_API_KEY is present in your local .env file!
+embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 
 # 5. Save the Database locally
 print("Saving FAISS index...")

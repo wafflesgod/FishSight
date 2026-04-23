@@ -15,7 +15,8 @@ opencv-python-headless==4.9.0.80
 
 # AI, LLM & RAG (Groq + Langchain + Vector DB)
 langchain-groq
-langchain-huggingface
+#langchain-huggingface
+langchain-google-genai
 langchain-community
 faiss-cpu
 #sentence-transformers

@@ -263,18 +263,19 @@ def chat():
         #embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
         # --- 1. LOAD THE RAG BRAIN USING CLOUD API ---
-        print("☁️ Connecting to Hugging Face Cloud API...")
-        hf_token = os.getenv("HF_TOKEN")
-                
-        # NEW, STABLE CODE
-        from langchain_huggingface import HuggingFaceEndpointEmbeddings
-        embeddings = HuggingFaceEndpointEmbeddings(
-            model="sentence-transformers/all-MiniLM-L6-v2",
-            task="feature-extraction",
-            huggingfacehub_api_token=hf_token
+        print("☁️ Connecting to Google Cloud Embeddings...")
+        from langchain_google_genai import GoogleGenerativeAIEmbeddings
+        
+        google_api_key = os.getenv("GOOGLE_API_KEY")
+        if not google_api_key:
+            return jsonify({"error": "Google API key missing"}), 500
+        
+        embeddings = GoogleGenerativeAIEmbeddings(
+            model="models/embedding-001", 
+            google_api_key=google_api_key
         )
-        print("✅ Cloud Embeddings Connected!")
-
+        print("✅ Google Embeddings Connected!")
+              
         # --- 4. LOAD FAISS ---
         print("📂 Loading FAISS Vector Database...")
         vector_store = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
@@ -288,38 +289,12 @@ def chat():
         if last_user_message and len(user_input.split()) < 5:
             search_query = f"{last_user_message} {user_input}"
 
-        #docs = retriever.invoke(search_query)
-        #context_text = "\n\n".join([doc.page_content for doc in docs])
-
-        # --- 5. THE RETRY MECHANISM ---
-        import time
-        docs = []
-        
-        # The model might be asleep. We will try up to 3 times!
-        for attempt in range(4):
-            try:
-                # Ask LangChain to search
-                docs = retriever.invoke(search_query)
-                print("✅ Search successful!")
-                break # It worked! Break out of the loop.
-                
-            except Exception as e:
-                # If we get the dictionary crash, wait 10 seconds and retry
-                if 'replace' in str(e) or 'dict' in str(e):
-                    print(f"😴 Hugging Face is asleep. Waiting 10s to wake it up (Attempt {attempt + 1}/3)...")
-                    time.sleep(10)
-                else:
-                    # If it's a different error, raise it normally
-                    raise e 
-        else:
-            # If it fails all 3 times, reply to the frontend gracefully instead of crashing
-            return jsonify({
-                "response": "My memory banks are just waking up! 🐟 Please click send again in about 15 seconds."
-            })
-
-        # --- 6. CONTINUE AS NORMAL ---
+        # --- 5. EXECUTE SEARCH ---
+        # We can remove the big retry loop now because Google doesn't sleep!
+        docs = retriever.invoke(search_query)
         context_text = "\n\n".join([doc.page_content for doc in docs])
-
+        print("✅ Search successful!")
+        
         # --- 3. NUKE RAG FROM RAM IMMEDIATELY ---
         del retriever
         del vector_store
