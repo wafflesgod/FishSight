@@ -239,74 +239,65 @@ def login():
 @app.route('/chat', methods=['POST'])
 def chat():
     data = request.json
-    user_input = data.get('message', '')
-    history = data.get('history', []) 
+    
+    # --- 1. THE BULLETPROOF DATA EXTRACTOR ---
+    # This guarantees we only extract the string, no matter how React sends it
+    if isinstance(data.get('message'), dict):
+        payload = data['message']
+        user_input = str(payload.get('message', ''))
+        history = payload.get('history', [])
+    else:
+        user_input = str(data.get('message', ''))
+        history = data.get('history', []) 
 
+    # Strip whitespace and check if empty
+    user_input = user_input.strip()
     if not user_input:
-        return jsonify({"error": "No message provided"}), 400
+        return jsonify({"error": "No valid text message provided"}), 400
 
     try:
-        # --- HIDDEN IMPORTS ---
-        print("Importing LangChain libraries...")
-        from langchain_groq import ChatGroq
-        # 1. NEW: Import the Cloud API version of HuggingFace Embeddings
-        from langchain_community.vectorstores import FAISS
-        print("✅ LangChain imports successful!")
-
-        # --- 2. INITIALIZE GROQ ---
-        print("🤖 Waking up Groq LLM...")
-        groq_api_key = os.getenv("GROQ_API_KEY") 
-        llm = ChatGroq(temperature=0.0, model_name="llama-3.1-8b-instant", api_key=groq_api_key)
-
-        # --- 1. LOAD THE RAG BRAIN INTO RAM ---
-        #print("🧠 Loading HuggingFace Embeddings...")
-        #embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-
-        # --- 1. LOAD THE RAG BRAIN USING CLOUD API ---
-        print("☁️ Connecting to Google Cloud Embeddings...")
+        # --- 2. IMPORT CLOUD TOOLS ---
+        print("☁️ Connecting to Google Cloud & Groq...")
         from langchain_google_genai import GoogleGenerativeAIEmbeddings
+        from langchain_groq import ChatGroq
+        from langchain_community.vectorstores import FAISS
+        import os
         
+        # --- 3. INITIALIZE MODELS ---
         google_api_key = os.getenv("GOOGLE_API_KEY")
-        if not google_api_key:
-            return jsonify({"error": "Google API key missing"}), 500
+        groq_api_key = os.getenv("GROQ_API_KEY")
         
+        if not google_api_key or not groq_api_key:
+            return jsonify({"error": "Missing API Keys on server"}), 500
+            
         embeddings = GoogleGenerativeAIEmbeddings(
             model="models/embedding-001", 
             google_api_key=google_api_key
         )
-        print("✅ Google Embeddings Connected!")
-              
-        # --- 4. LOAD FAISS ---
+        llm = ChatGroq(temperature=0.0, model_name="llama-3.1-8b-instant", api_key=groq_api_key)
+        
+        # --- 4. LOAD DATABASE & SEARCH ---
         print("📂 Loading FAISS Vector Database...")
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        index_path = os.path.join(script_dir, "aquarium_index")
+        
         vector_store = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
-        retriever = vector_store.as_retriever(search_kwargs={"k": 3})
-        print("✅ Database Ready! Searching for answer...")
-
-        # --- 2. DO THE SEARCH ---
-        search_query = user_input
-        last_user_message = next((msg['text'] for msg in reversed(history) if msg['sender'] == 'user'), None)
-
-        if last_user_message and len(user_input.split()) < 5:
-            search_query = f"{last_user_message} {user_input}"
-
-        # --- 5. EXECUTE SEARCH ---
-        # We can remove the big retry loop now because Google doesn't sleep!
+        retriever = vector_store.as_retriever(search_kwargs={"k": 3}) 
+        
+        # GUARANTEED STRING SEARCH
+        search_query = user_input 
+        print(f"🔍 Searching database for: '{search_query}'")
+        
         docs = retriever.invoke(search_query)
         context_text = "\n\n".join([doc.page_content for doc in docs])
         print("✅ Search successful!")
-        
-        # --- 3. NUKE RAG FROM RAM IMMEDIATELY ---
-        del retriever
-        del vector_store
-        del embeddings
-        gc.collect()
-        print("🧹 RAG Models cleared from RAM!")
 
-        # --- 4. TALK TO GROQ ---
+        # --- 5. FORMAT CONVERSATION HISTORY ---
         conversation_text = ""
         for msg in history[-5:]: 
-            role = "User" if msg['sender'] == 'user' else "Assistant"
-            conversation_text += f"{role}: {msg['text']}\n"
+            # Safely handle dictionary keys
+            role = "User" if msg.get('sender') == 'user' else "Assistant"
+            conversation_text += f"{role}: {msg.get('text', '')}\n"
 
         prompt = f"""
         You are a helpful Aquarium Assistant.
@@ -322,17 +313,14 @@ def chat():
         
         INSTRUCTIONS:
         - Use the RELEVANT KNOWLEDGE to answer.
-        - If the user says "Yes" or "What about it?", look at PAST CONVERSATION to understand context.
         - Keep answers concise and friendly.
         """
         
         response = llm.invoke(prompt)
-        return jsonify({"response": response.content})
-        
+        return jsonify({"response": response.content}), 200
+
     except Exception as e:
-        print(f"Error: {e}")
-        import gc
-        gc.collect() # Always clean up memory on error
+        print(f"Chat Error: {e}")
         return jsonify({"error": str(e)}), 500
 
 # ==========================================
