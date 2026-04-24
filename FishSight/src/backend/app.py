@@ -271,7 +271,7 @@ def chat():
             return jsonify({"error": "Missing API Keys on server"}), 500
             
         embeddings = GoogleGenerativeAIEmbeddings(
-            model="models/embedding-001", 
+            model="models/gemini-embedding-001", 
             google_api_key=google_api_key
         )
         llm = ChatGroq(temperature=0.0, model_name="llama-3.1-8b-instant", api_key=groq_api_key)

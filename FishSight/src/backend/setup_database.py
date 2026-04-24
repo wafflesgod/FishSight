@@ -53,7 +53,7 @@ chunks = text_splitter.split_documents(documents)
 # 4. Create Embeddings with Google
 print("Converting text to numbers using Google Generative AI...")
 # Ensure GOOGLE_API_KEY is present in your local .env file!
-embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
 
 # 5. Save the Database locally
 print("Saving FAISS index...")
