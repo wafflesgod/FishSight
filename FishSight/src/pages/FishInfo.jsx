@@ -9,7 +9,7 @@ const FishInfo = () => {
     // Fetch the data from your new Python route when the page loads
     const fetchFishData = async () => {
       try {
-        const response = await fetch('https://fishsight.onrender.com/api/fish-info');
+        const response = await fetch('https://fishsight-1.onrender.com/api/fish-info');
         const data = await response.json();
         setFishList(data);
       } catch (error) {

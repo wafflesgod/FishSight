@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { FishService } from '../services/API'; // NEW: Import your API service
+import { useFish } from '../context/FishContext'; 
 import './FishId.css';
 
 const FishId = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState(null);
+  
+  // Connect to the Global Brain
+  const { analyzeImageBackground, globalResult, globalImageUrl  } = useFish();
 
   // 1. Handle when user selects a file
   const handleImageChange = (e) => {
@@ -14,36 +15,15 @@ const FishId = () => {
     if (file) {
       setSelectedImage(file);
       setPreviewUrl(URL.createObjectURL(file)); 
-      setResult(null); 
     }
   };
 
-  // 2. The REAL AI Analysis Call
-  const handleAnalyze = async () => {
+  // 2. Hand the analysis off to the background task
+  const handleAnalyze = () => {
     if (!selectedImage) return;
 
-    setIsLoading(true);
-    setResult(null); // Clear any previous results
-
-    try {
-      // Send the image to your Python backend
-      const data = await FishService.identifyFish(selectedImage);
-
-      // When your custom ResNet50 model (trained on the 12 freshwater species) processes the image, 
-      // it will return the prediction back to this screen.
-      setResult({
-        species: data.species,
-        confidence: data.confidence,
-        careLevel: data.careLevel || "Check Fish Info tab for details", // Fallbacks in case your AI just returns species
-        notes: data.notes || "Analysis complete."
-      });
-
-    } catch (error) {
-      console.error("AI Analysis failed:", error);
-      alert("Failed to analyze the image. Is your Python server running?");
-    } finally {
-      setIsLoading(false); // Stop the loading spinner whether it succeeds or fails
-    }
+    // Send the image to the global context (which talks to Python)
+    analyzeImageBackground(selectedImage);
   };
 
   return (
@@ -80,22 +60,34 @@ const FishId = () => {
             <button 
               className="analyze-btn" 
               onClick={handleAnalyze} 
-              disabled={isLoading}
             >
-              {isLoading ? "Analyzing..." : "🔍 Identify Fish"}
+              🔍 Identify Fish
             </button>
+            <p className="text-muted text-sm mt-2" style={{ fontStyle: 'italic', marginTop: '10px' }}>
+              Analysis runs in the background. Feel free to navigate to other tabs!
+            </p>
           </div>
         </div>
       )}
 
-      {/* Results Section (Only shows after analysis) */}
-      {result && (
+      {/* Results Section (Reads from the Global Result) */}
+      {globalResult && (
         <div className="result-box">
-          <h2>Analysis Result</h2>
-          <p><strong>Detected Species:</strong> {result.species}</p>
-          <p><strong>Confidence:</strong> {result.confidence}</p>
-          <p><strong>Care Level:</strong> {result.careLevel}</p>
-          <p><i>{result.notes}</i></p>
+          <h2>Latest Analysis Result</h2>
+          
+          {/* NEW: Display the surviving image right here! */}
+          {globalImageUrl && (
+            <img 
+              src={globalImageUrl} 
+              alt="Analyzed Fish" 
+              style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', marginBottom: '15px' }} 
+            />
+          )}
+
+          <p><strong>Detected Species:</strong> {globalResult.species}</p>
+          <p><strong>Confidence:</strong> {globalResult.confidence}</p>
+          <p><strong>Care Level:</strong> {globalResult.careLevel}</p>
+          <p><i>{globalResult.notes}</i></p>
         </div>
       )}
     </div>

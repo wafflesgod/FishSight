@@ -1,4 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Required for the pop-up styling
+import { FishProvider } from './context/FishContext'; // Your new Global Brain
+
 import './App.css';
 import Chatbot from './pages/Chatbot';
 
@@ -14,36 +18,44 @@ import FishId from './pages/FishId';
 import FishInfo from './pages/FishInfo';
 import Forum from './pages/Forum';
 
+// THE BOUNCER
+import ProtectedRoute from './components/ProtectedRoute';
+
 function App() {
   return (
     <Router>
-      <div className="app-container">
-        <Header />
+      <FishProvider>
+        {/* 2. Moved to bottom-right so it never blocks your navbar! */}
+        <ToastContainer position="bottom-right" theme="colored" />
         
-        <main className="main-content">
-          <Routes>
-            {/* 1. Main Pages */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/fish-id" element={<FishId />} />
-            
-            {/* 2. Placeholders */}
-            <Route path="/chatbot" element={<Chatbot />} />
-            <Route path="/forum" element={<Forum />} />
+        <div className="app-container">
+          <Header />
+          
+          <main className="main-content">
+            <Routes>
+              {/* Main Pages */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/fish-id" element={<FishId />} />
+              
+              {/* Placeholders */}
+              <Route path="/chatbot" element={<ProtectedRoute><Chatbot /></ProtectedRoute>} />
+              <Route path="/forum" element={<Forum />} />
 
-            {/* 3. Auth Pages */}
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/register" element={<Register />} />
+              {/* Auth Pages */}
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/register" element={<Register />} />
 
-            {/* 4. Fish Info Page */}
-            <Route path="/fish-info" element={<FishInfo />} />
+              {/* Fish Info Page */}
+              <Route path="/fish-info" element={<FishInfo />} />
 
-            {/* 4. Catch-All for errors */}
-            <Route path="*" element={<h1 style={{color: 'red', textAlign:'center', marginTop:'50px'}}>404 - Page Not Found</h1>} />
-          </Routes>
-        </main>
+              {/* Catch-All for errors */}
+              <Route path="*" element={<h1 style={{color: 'red', textAlign:'center', marginTop:'50px'}}>404 - Page Not Found</h1>} />
+            </Routes>
+          </main>
 
-        <Footer />
-      </div>
+          <Footer />
+        </div>
+      </FishProvider>
     </Router>
   );
 }

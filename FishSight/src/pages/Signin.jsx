@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthService } from '../services/API'; // Importing your API setup
-import './Auth.css'; // Import the shared styles
+import { toast } from 'react-toastify'; // Import toast!
+import { AuthService } from '../services/API'; 
+import './Auth.css'; 
 
 const SignIn = () => {
-  const navigate = useNavigate(); // Hook for redirection (optional if using window.location)
+  const navigate = useNavigate(); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -12,21 +13,20 @@ const SignIn = () => {
     e.preventDefault();
     
     try {
-      // 1. Send data to the Python backend using your api.js file
       const data = await AuthService.login({ email, password });
 
-      // 2. Save user details to browser memory so the Header updates
       localStorage.setItem('username', data.username);
       localStorage.setItem('email', data.email);
         
-      // 3. Success message and redirect to the homepage
-      alert("Login Successful!");
-      window.location.href = '/'; 
+      // Show smooth success toast
+      toast.success(`Welcome back, ${data.username}!`);
+      
+      // Soft redirect so the toast survives the journey
+      navigate('/'); 
       
     } catch (error) {
-      // 4. Handle incorrect password or server errors
-      console.error("Login error:", error);
-      alert("Login Failed: " + error.message);
+      // Show smooth error toast
+      toast.error("Login Failed: " + error.message);
     }
   };
 
@@ -34,7 +34,6 @@ const SignIn = () => {
     <div className="auth-container">
       <h2>Welcome Back</h2>
       <form onSubmit={handleSubmit}>
-        
         <div className="form-group">
           <label>Email Address</label>
           <input 

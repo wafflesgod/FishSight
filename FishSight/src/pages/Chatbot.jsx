@@ -1,52 +1,47 @@
 import React, { useState, useEffect, useRef } from 'react';
-// 1. We removed axios and imported ChatService instead!
 import { ChatService } from '../services/API'; 
+import { useFish } from '../context/FishContext'; // 1. Import the Global Brain
 import './Chatbot.css'; 
 
 const Chatbot = () => {
   const [input, setInput] = useState('');
-  // 2. Updated the greeting to focus only on fish!
-  const [messages, setMessages] = useState([
-    { sender: 'bot', text: 'Hello! I am your Aquarium Assistant. Ask me about your fish! 🐟' }
-  ]);
   const [loading, setLoading] = useState(false);
   
+  // 2. NO MORE SESSION STORAGE! Pull from Context instead.
+  const { chatMessages, setChatMessages } = useFish();
+
   // Auto-scroll to bottom
   const messagesEndRef = useRef(null);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-  useEffect(scrollToBottom, [messages]);
+  useEffect(scrollToBottom, [chatMessages]); // Watch the context variable!
 
   const sendMessage = async () => {
     if (!input.trim()) return;
 
-    // 1. Add User Message
     const userMessage = { sender: 'user', text: input };
-    const newMessages = [...messages, userMessage]; 
+    const newMessages = [...chatMessages, userMessage]; 
     
-    setMessages(newMessages);
+    setChatMessages(newMessages); // Update the Global Brain
     setLoading(true);
     setInput('');
 
     try {
-      // 2. Prepare History (Send last 6 messages to Python)
       const history = newMessages.slice(-6); 
 
-      // 3. Send to Backend using your clean ChatService!
       const data = await ChatService.sendMessage({
         message: input,
         history: history 
       });
 
-      // 4. Add Bot Response (API.js already handles the .json() parsing)
       const botMessage = { sender: 'bot', text: data.response };
-      setMessages((prev) => [...prev, botMessage]);
+      setChatMessages((prev) => [...prev, botMessage]);
       
     } catch (error) {
       console.error("Error:", error);
       const errorMessage = { sender: 'bot', text: 'Error: Could not reach the brain. Is Python running?' };
-      setMessages((prev) => [...prev, errorMessage]);
+      setChatMessages((prev) => [...prev, errorMessage]);
     } finally {
       setLoading(false);
     }
@@ -57,7 +52,7 @@ const Chatbot = () => {
       <div className="chat-window">
         {/* Messages Area */}
         <div className="messages-list">
-          {messages.map((msg, index) => (
+          {chatMessages.map((msg, index) => (
             <div key={index} className={`message-bubble ${msg.sender}`}>
               {msg.text}
             </div>
@@ -73,7 +68,6 @@ const Chatbot = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-            // 3. Updated placeholder text!
             placeholder="Ask about Neon Tetras..."
             disabled={loading}
           />
