@@ -21,7 +21,7 @@ from bson.objectid import ObjectId
 # --------------------------------
 
 # Import your MongoDB collection from database.py
-from database import users_collection, species_collection, forum_collection
+from database import users_collection, species_collection, forum_collection, chat_history_collection 
 
 #from langchain_groq import ChatGroq
 #from langchain_huggingface import HuggingFaceEmbeddings
@@ -319,6 +319,42 @@ def chat():
         """
         
         response = llm.invoke(prompt)
+
+        # ==========================================
+        # NEW: SAVE TO CHAT HISTORY DATABASE
+        # ==========================================
+        # Try to safely get the username from the React request
+        username = data.get('username', 'Guest')
+        # If React doesn't send a SessionID (e.g., first message of a new chat), create one
+        session_id = data.get('session_id', str(uuid.uuid4()))
+        
+        # ==========================================
+        # ENFORCE THE 5-CHAT LIMIT RULE
+        # ==========================================
+        # 1. Get a list of the user's unique sessions, sorted by oldest first
+        pipeline = [
+            {"$match": {"UserID": username}},
+            {"$group": {"_id": "$SessionID", "FirstMessage": {"$min": "$Timestamp"}}},
+            {"$sort": {"FirstMessage": 1}} # 1 for Ascending (Oldest first)
+        ]
+        user_sessions = list(chat_history_collection.aggregate(pipeline))
+        
+        # 2. If they have 5 or more unique sessions AND this is a brand new session...
+        # We must delete the oldest one to make room.
+        session_ids = [s['_id'] for s in user_sessions]
+        if len(session_ids) >= 5 and session_id not in session_ids:
+            oldest_session = session_ids[0]
+            chat_history_collection.delete_many({"SessionID": oldest_session})
+            print(f"Deleted oldest chat session {oldest_session} to enforce 5-chat limit.")
+        
+        chat_history_collection.insert_one({
+            "UserID": username,
+            "UserQuery": user_input,
+            "AIResponse": response.content,
+            "Timestamp": datetime.now(timezone.utc)
+        })
+        # ==========================================
+
         return jsonify({"response": response.content}), 200
 
     except Exception as e:
@@ -345,34 +381,74 @@ def get_fish_info():
 # Import the new collection at the top of your file if it's not already there:
 from database import feedback_collection
 
-@app.route('/api/feedback', methods=['POST'])
+@app.route('/api/feedback', methods=['POST', 'OPTIONS'])
 def collect_feedback():
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
     data = request.json
     is_correct = data.get('is_correct')
     original_prediction = data.get('original_prediction')
+    username = data.get('username') # <-- Catch the user!
     
-    # We log everything to MongoDB Atlas. This avoids local folder issues on deployed servers!
     if is_correct:
-        # If the AI was right, just log a success metric (no need to save the image)
         feedback_collection.insert_one({
-            "original_prediction": original_prediction,
-            "is_correct": True,
-            "timestamp": datetime.now(timezone.utc)
+            "UserID": username, # <-- Save it!
+            "OriginalPrediction": original_prediction,
+            "IsCorrect": True,
+            "Timestamp": datetime.now(timezone.utc)
         })
     else:
-        # If the AI was wrong, save the correction AND the image string for retraining
-        corrected_label = data.get('corrected_label')
-        image_data = data.get('image_data') 
-        
         feedback_collection.insert_one({
-            "original_prediction": original_prediction,
-            "corrected_label": corrected_label,
-            "is_correct": False,
-            "image_data": image_data, # Stored securely in MongoDB
-            "timestamp": datetime.now(timezone.utc)
+            "UserID": username, # <-- Save it!
+            "OriginalPrediction": original_prediction,
+            "CorrectedLabel": data.get('corrected_label'),
+            "IsCorrect": False,
+            "ImageData": data.get('image_data'),
+            "Timestamp": datetime.now(timezone.utc)
         })
         
-    return jsonify({"message": "Feedback securely logged to MongoDB Atlas for MLOps."}), 200
+    return jsonify({"message": "Feedback securely logged."}), 200
+
+# ==========================================
+# Create Chat History Route
+# ==========================================
+@app.route('/api/chat/history/<username>', methods=['GET'])
+def get_chat_history(username):
+    # Group by SessionID, get the first message (for the title), and the timestamp
+    pipeline = [
+        {"$match": {"UserID": username}},
+        {"$sort": {"Timestamp": 1}}, # Sort oldest to newest first
+        {"$group": {
+            "_id": "$SessionID",
+            "FirstMessage": {"$first": "$UserQuery"}, # Use first question as the Chat Title
+            "LastUpdated": {"$last": "$Timestamp"},
+            "Messages": {"$push": {"query": "$UserQuery", "response": "$AIResponse"}}
+        }},
+        {"$sort": {"LastUpdated": -1}} # Sort newest chats to the top of the sidebar!
+    ]
+    
+    sessions = list(chat_history_collection.aggregate(pipeline))
+    return jsonify(sessions), 200
+
+# ==========================================
+# Delete Chat Session Route
+# ==========================================
+@app.route('/api/chat/history/<session_id>', methods=['DELETE'])
+def delete_chat_session(session_id):
+    # Verify the user is deleting their own chat!
+    data = request.json
+    username = data.get('username')
+    
+    result = chat_history_collection.delete_many({
+        "SessionID": session_id, 
+        "UserID": username
+    })
+    
+    if result.deleted_count > 0:
+        return jsonify({"message": "Chat deleted successfully."}), 200
+    else:
+        return jsonify({"error": "Chat not found or unauthorized."}), 404
 
 # ==========================================
 # COMMUNITY FORUM ROUTES

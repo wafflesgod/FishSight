@@ -49,7 +49,10 @@ const FishId = () => {
     reader.onloadend = async () => {
       const base64Image = reader.result;
 
+      const currentUser = localStorage.getItem('username') || 'Guest';
+
       const feedbackData = {
+        username: currentUser,
         original_prediction: globalResult.species,
         corrected_label: finalLabel,
         is_correct: status,
