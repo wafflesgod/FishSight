@@ -4,6 +4,8 @@ import numpy as np
 from PIL import Image
 import io 
 import gc
+import uuid
+import base64
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -336,7 +338,42 @@ def get_fish_info():
         return jsonify(fish_list), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# ==========================================
+# SUSTAINABLE AI - FEEDBACK ROUTE
+# ==========================================
+# Import the new collection at the top of your file if it's not already there:
+from database import feedback_collection
+
+@app.route('/api/feedback', methods=['POST'])
+def collect_feedback():
+    data = request.json
+    is_correct = data.get('is_correct')
+    original_prediction = data.get('original_prediction')
     
+    # We log everything to MongoDB Atlas. This avoids local folder issues on deployed servers!
+    if is_correct:
+        # If the AI was right, just log a success metric (no need to save the image)
+        feedback_collection.insert_one({
+            "original_prediction": original_prediction,
+            "is_correct": True,
+            "timestamp": datetime.now(timezone.utc)
+        })
+    else:
+        # If the AI was wrong, save the correction AND the image string for retraining
+        corrected_label = data.get('corrected_label')
+        image_data = data.get('image_data') 
+        
+        feedback_collection.insert_one({
+            "original_prediction": original_prediction,
+            "corrected_label": corrected_label,
+            "is_correct": False,
+            "image_data": image_data, # Stored securely in MongoDB
+            "timestamp": datetime.now(timezone.utc)
+        })
+        
+    return jsonify({"message": "Feedback securely logged to MongoDB Atlas for MLOps."}), 200
+
 # ==========================================
 # COMMUNITY FORUM ROUTES
 # ==========================================

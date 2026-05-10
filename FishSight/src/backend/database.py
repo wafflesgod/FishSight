@@ -24,3 +24,4 @@ db = client.fishsight_db
 users_collection = db.users
 species_collection = db.fish_species
 forum_collection = db.forums
+feedback_collection = db["feedback_logs"] # Add this line
