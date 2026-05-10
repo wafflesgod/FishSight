@@ -320,7 +320,9 @@ def chat():
         return jsonify({"response": response.content}), 200
 
     except Exception as e:
-        print(f"Chat Error: {e}")
+        print("\n=== CHAT ERROR START ===")
+        traceback.print_exc()
+        print("=== CHAT ERROR END ===\n")
         return jsonify({"error": str(e)}), 500
 
 # ==========================================
