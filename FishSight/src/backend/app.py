@@ -256,6 +256,20 @@ def chat():
     user_input = user_input.strip()
     if not user_input:
         return jsonify({"error": "No valid text message provided"}), 400
+    
+    username = data.get('username', 'Guest')
+
+    # ==========================================
+    # THE BULLETPROOF SESSION ID FIX
+    # ==========================================
+    session_id = data.get('session_id')
+    # If React sends null, empty string, or missing data, force a new UUID
+    if not session_id or session_id == "null": 
+        session_id = str(uuid.uuid4())
+        print(f"🆕 [NEW CHAT] Generated Session ID: {session_id}")
+    else:
+        print(f"🔄 [EXISTING CHAT] Using Session ID: {session_id}")
+    # ==========================================
 
     try:
         # --- 2. IMPORT CLOUD TOOLS ---
@@ -321,46 +335,41 @@ def chat():
         response = llm.invoke(prompt)
 
         # ==========================================
-        # NEW: SAVE TO CHAT HISTORY DATABASE
+        # ENFORCE 5-CHAT LIMIT
         # ==========================================
-        # Try to safely get the username from the React request
-        username = data.get('username', 'Guest')
-        # If React doesn't send a SessionID (e.g., first message of a new chat), create one
-        session_id = data.get('session_id')
+        from database import chat_history_collection
         
-        # If session_id is None, empty string, or missing, force a new one!
-        if not session_id: 
-            session_id = str(uuid.uuid4())
-            print(f"🆕 Generated brand new Session ID: {session_id}")
-
-        # ==========================================
-        # ENFORCE THE 5-CHAT LIMIT RULE
-        # ==========================================
-        # 1. Get a list of the user's unique sessions, sorted by oldest first
         pipeline = [
             {"$match": {"UserID": username}},
             {"$group": {"_id": "$SessionID", "FirstMessage": {"$min": "$Timestamp"}}},
-            {"$sort": {"FirstMessage": 1}} # 1 for Ascending (Oldest first)
+            {"$sort": {"FirstMessage": 1}} 
         ]
         user_sessions = list(chat_history_collection.aggregate(pipeline))
+        session_ids = [s['_id'] for s in user_sessions if s['_id']]
         
-        # 2. If they have 5 or more unique sessions AND this is a brand new session...
-        # We must delete the oldest one to make room.
-        session_ids = [s['_id'] for s in user_sessions]
         if len(session_ids) >= 5 and session_id not in session_ids:
             oldest_session = session_ids[0]
             chat_history_collection.delete_many({"SessionID": oldest_session})
-            print(f"Deleted oldest chat session {oldest_session} to enforce 5-chat limit.")
-        
+            print(f"🗑️ Deleted oldest chat {oldest_session} to enforce limit.")
+
+        # ==========================================
+        # SAVE TO DB
+        # ==========================================
         chat_history_collection.insert_one({
+            "SessionID": session_id,
             "UserID": username,
             "UserQuery": user_input,
             "AIResponse": response.content,
             "Timestamp": datetime.now(timezone.utc)
         })
-        # ==========================================
 
-        return jsonify({"response": response.content}), 200
+        # 🚨 THIS IS THE LINE THAT WAS MISSING 🚨
+        # We MUST send the session_id back to React!
+        return jsonify({"response": response.content, "session_id": session_id}), 200
+
+    except Exception as e:
+        print(f"Chat Error: {e}")
+        return jsonify({"error": str(e)}), 500 
 
     except Exception as e:
         print("\n=== CHAT ERROR START ===")
