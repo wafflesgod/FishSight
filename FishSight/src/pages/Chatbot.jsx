@@ -34,7 +34,7 @@ const Chatbot = () => {
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/chat/history/${username}`);
+      const res = await fetch(`https://fishsight-1.onrender.com/api/chat/history/${username}`);
       if (res.ok) {
         const data = await res.json();
         setSessions(data);
@@ -68,7 +68,7 @@ const Chatbot = () => {
   const deleteSession = async (sessionId, e) => {
     e.stopPropagation(); // Prevents the click from also triggering loadSession
     try {
-      await fetch(`http://localhost:5000/api/chat/history/${sessionId}`, {
+      await fetch(`https://fishsight-1.onrender.com/api/chat/history/${sessionId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username })

@@ -61,7 +61,7 @@ const FishId = () => {
 
       try {
         // Change localhost to your deployed URL if testing online!
-        await fetch('http://localhost:5000/api/feedback', {
+        await fetch('https://fishsight-1.onrender.com/api/feedback', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(feedbackData),
