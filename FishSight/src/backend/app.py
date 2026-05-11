@@ -326,8 +326,13 @@ def chat():
         # Try to safely get the username from the React request
         username = data.get('username', 'Guest')
         # If React doesn't send a SessionID (e.g., first message of a new chat), create one
-        session_id = data.get('session_id', str(uuid.uuid4()))
+        session_id = data.get('session_id')
         
+        # If session_id is None, empty string, or missing, force a new one!
+        if not session_id: 
+            session_id = str(uuid.uuid4())
+            print(f"🆕 Generated brand new Session ID: {session_id}")
+
         # ==========================================
         # ENFORCE THE 5-CHAT LIMIT RULE
         # ==========================================

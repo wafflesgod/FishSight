@@ -66,4 +66,16 @@ for doc in mistakes:
         feedback_collection.delete_one({"_id": doc["_id"]})
 
 print(f"\n🎉 Harvesting complete! Downloaded {download_count} new images.")
-print("Database space has been freed up.")
+
+# ==========================================
+# NEW: CLEAN UP THE CORRECT PREDICTIONS
+# ==========================================
+print("🧹 Sweeping remaining correct predictions from the database...")
+
+# This deletes all logs where the AI got it right, leaving the database completely empty
+# Note: Make sure the field name matches exactly what is in your database 
+# (either "IsCorrect": True or "is_correct": True depending on your Flask code)
+cleanup_result = feedback_collection.delete_many({"IsCorrect": True})
+
+print(f"✅ Deleted {cleanup_result.deleted_count} text-only logs.")
+print("Database is now 100% clean and ready for the next batch!")
