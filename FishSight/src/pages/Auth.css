@@ -1,4 +1,5 @@
 /* src/pages/Auth.css */
+
 .auth-container {
   max-width: 400px;
   margin: 3rem auto; /* Centers the box */
@@ -10,8 +11,9 @@
   text-align: center;
 }
 
-.auth-container h2 {
-  color: #00695C;
+/* Target main headings */
+.auth-container h2, .auth-title {
+  color: var(--dark-blue);
   margin-bottom: 1.5rem;
 }
 
@@ -20,11 +22,12 @@
   text-align: left;
 }
 
+/* Target the input labels */
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #374151;
+  font-weight: bold;
+  color: var(--dark-blue);
 }
 
 .form-group input {
@@ -36,42 +39,58 @@
   box-sizing: border-box; /* Prevents padding from breaking layout */
 }
 
+/* The glow effect when a user clicks inside the text box */
 .form-group input:focus {
-  border-color: #00897B;
+  border-color: var(--primary-blue);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 137, 123, 0.1);
+  /* Box shadow converted to match your #3F72AF blue */
+  box-shadow: 0 0 0 3px rgba(63, 114, 175, 0.2); 
 }
 
+/* --- The Uiverse Button --- */
 .auth-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: #00897B;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  background-color: var(--primary-blue);
+  width: 100%; 
+  padding: 14px 40px;
+  color: #fff;
+  text-transform: uppercase;
   font-weight: bold;
+  letter-spacing: 2px;
   cursor: pointer;
-  margin-top: 1rem;
-  transition: background-color 0.2s;
+  border-radius: 10px;
+  border: 2px dashed var(--primary-blue);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+  transition: 0.4s;
+  margin-top: 15px;
 }
 
 .auth-btn:hover {
-  background-color: #00695C;
+  background-color: #fff;
+  color: var(--primary-blue); 
 }
 
+.auth-btn:active {
+  background-color: var(--light-blue);
+  border-color: var(--light-blue);
+  color: var(--dark-blue);
+  transform: scale(0.98); 
+}
+
+/* --- Links at the bottom --- */
 .auth-link {
   margin-top: 1rem;
   font-size: 0.9rem;
-  color: #64748b;
+  color: #333;
 }
 
 .auth-link a {
-  color: #00897B;
+  color: var(--primary-blue);
   text-decoration: none;
   font-weight: 600;
+  transition: color 0.3s;
 }
 
 .auth-link a:hover {
+  color: var(--dark-blue);
   text-decoration: underline;
 }
