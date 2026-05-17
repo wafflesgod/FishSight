@@ -8,80 +8,186 @@
 }
 
 .fish-info-container h1 {
-  color: #00897B; /* Primary Teal */
+  color: var(--dark-blue);
   margin-bottom: 0.5rem;
 }
 
 .fish-info-container > p {
-  color: #64748b;
+  color: var(--primary-blue);
   margin-bottom: 3rem;
   font-size: 1.1rem;
 }
 
-/* The Grid Layout for the Cards */
+/* The Grid Layout */
 .fish-grid {
   display: grid;
-  /* This automatically fits as many 300px cards as possible per row */
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
   padding: 1rem;
 }
 
-/* Individual Fish Card Styling */
+/* --- BASE CARD STYLING --- */
 .fish-card {
   background-color: white;
   border-radius: 12px;
-  padding: 1.5rem;
-  text-align: left;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
   border: 1px solid #e2e8f0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden; /* Keeps contents inside the rounded corners */
 }
 
-.fish-card:hover {
-  transform: translateY(-5px); /* Gentle lift effect */
-  box-shadow: 0 10px 15px rgba(0, 137, 123, 0.15); /* Teal shadow */
-  border-color: #00897B;
+/* The Header (Frozen at the top) */
+.fish-card-header {
+  padding: 15px 20px;
+  background-color: white;
+  border-bottom: 2px solid var(--light-blue);
+  
+  /* Flexbox pushes the titles left and the badge right! */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 10;
+  position: relative;
 }
 
-.fish-card h2 {
-  margin: 0 0 0.2rem 0;
-  color: #333;
+.header-titles {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
 }
 
-/* Styling for the fish photos */
-.fish-info-img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover; /* Crops the image perfectly without stretching */
-  border-radius: 8px;
-  margin-bottom: 1rem;
+.fish-card-header h2 {
+  color: var(--dark-blue);
+  margin: 0;
+  font-size: 1.4rem;
 }
 
 .sci-name {
-  color: #94a3b8;
-  margin: 0 0 1.5rem 0;
-  font-weight: normal;
-}
-
-.fish-stats {
-  background-color: #f8fafc;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-}
-
-.fish-stats p {
-  margin: 0.5rem 0;
+  color: var(--primary-blue);
+  margin: 5px 0 0 0;
   font-size: 0.95rem;
-  color: #475569;
 }
 
-.fish-stats strong {
+/* --- THE DATA GRID ON THE BACK --- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 columns */
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--dark-blue);
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.stats-grid p {
+  margin: 0;
+  background: white;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid var(--light-blue);
+}
+
+.fish-conclusion p {
+  font-size: 0.9rem;
   color: #333;
+  line-height: 1.5;
+  margin: 0;
+  text-align: justify;
 }
 
-.fish-desc {
-  line-height: 1.6;
-  color: #475569;
+/* --- NEW: CARE LEVEL BADGE STYLES --- */
+.care-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Dynamic colors based on the database word! */
+.care-easy { 
+  background-color: #d1fae5; 
+  color: #065f46; 
+  border: 1px solid #10b981; 
+}
+.care-moderate, .care-medium { 
+  background-color: #fef3c7; 
+  color: #92400e; 
+  border: 1px solid #f59e0b; 
+}
+.care-hard, .care-advanced { 
+  background-color: #fee2e2; 
+  color: #991b1b; 
+  border: 1px solid #ef4444; 
+}
+
+/* ========================================= */
+/* DESKTOP VIEW (3D Hover Flip)              */
+/* ========================================= */
+@media (min-width: 769px) {
+  .fish-card-body {
+    perspective: 1000px; /* Activates 3D space */
+    height: 300px; /* Fixed height for the flipping area */
+  }
+
+  .fish-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+
+  /* The actual flip trigger */
+  .fish-card:hover .fish-card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .fish-card-front, .fish-card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden; /* Hides the back of the element */
+  }
+
+  .fish-card-front img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Image fills the square perfectly */
+  }
+
+  .fish-card-back {
+    background-color: var(--bg-light);
+    transform: rotateY(180deg); /* Starts flipped backwards */
+    padding: 15px;
+    overflow-y: auto; /* Allows scrolling if the description is very long */
+    box-sizing: border-box;
+  }
+}
+
+/* ========================================= */
+/* MOBILE VIEW (Static, Stacked Layout)      */
+/* ========================================= */
+@media (max-width: 768px) {
+  .fish-card-body {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .fish-card-front img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .fish-card-back {
+    background-color: var(--bg-light);
+    padding: 15px;
+    border-top: 2px solid var(--light-blue);
+  }
 }

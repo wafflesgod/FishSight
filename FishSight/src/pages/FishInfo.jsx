@@ -6,7 +6,6 @@ const FishInfo = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch the data from your new Python route when the page loads
     const fetchFishData = async () => {
       try {
         const response = await fetch('https://fishsight-1.onrender.com/api/fish-info');
@@ -32,26 +31,58 @@ const FishInfo = () => {
       <div className="fish-grid">
         {fishList.map((fish, index) => (
           <div key={index} className="fish-card">
-            <h2>{fish.CommonName}</h2>
-            <h4 className="sci-name"><i>{fish.SciName}</i></h4>
-
-            {/* NEW: The Image Tag! */}
-            {fish.ImageRef && (
-              <img 
-                src={`/fish_images/${fish.ImageRef}`} 
-                alt={fish.CommonName} 
-                className="fish-info-img" 
-              />
-            )}
             
-            <div className="fish-stats">
-              <p><strong>Family:</strong> {fish.Family}</p>
-              <p><strong>pH Range:</strong> {fish.PH_Range}</p>
-              <p><strong>Temp:</strong> {fish.Temp_Range}</p>
-              <p><strong>Diet:</strong> {fish.Diet}</p>
+            {/* STATIC HEADER */}
+            <div className="fish-card-header">
+              <div className="header-titles">
+                <h2>{fish.CommonName}</h2>
+                <p className="sci-name"><i>{fish.SciName}</i></p>
+              </div>
+              
+              {/* NEW: Dynamic Care Level Badge */}
+              {fish.CareLevel && (
+                <span className={`care-badge care-${fish.CareLevel.toLowerCase()}`}>
+                  {fish.CareLevel}
+                </span>
+              )}
             </div>
-            
-            <p className="fish-desc">{fish.Description}</p>
+
+            {/* FLIPPING BODY */}
+            <div className="fish-card-body">
+              <div className="fish-card-inner">
+                
+                {/* FRONT: The Image */}
+                <div className="fish-card-front">
+                  {fish.ImageRef ? (
+                    <img 
+                      src={`/fish_images/${fish.ImageRef}`} 
+                      alt={fish.CommonName} 
+                      className="fish-info-img" 
+                    />
+                  ) : (
+                    <div className="no-image">No Image</div>
+                  )}
+                </div>
+                
+                {/* BACK: The Data & Conclusion */}
+                <div className="fish-card-back">
+                  <div className="stats-grid">
+                    <p><strong>Size:</strong> {fish.Size || "N/A"}</p>
+                    <p><strong>Lifespan:</strong> {fish.Lifespan || "N/A"}</p>
+                    <p><strong>Temperament:</strong> {fish.Temperament || "N/A"}</p>
+                    <p><strong>Tank Level:</strong> {fish.Tank_Level || "N/A"}</p>
+                    <p><strong>Breeding:</strong> {fish.Breeding || "N/A"}</p>
+                    <p><strong>Diet:</strong> {fish.Diet || "N/A"}</p>
+                    <p><strong>pH:</strong> {fish.PH_Range || "N/A"}</p>
+                    <p><strong>Temp:</strong> {fish.Temp_Range || "N/A"}</p>
+                  </div>
+                  <div className="fish-conclusion">
+                    <p>{fish.Description}</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
           </div>
         ))}
       </div>
