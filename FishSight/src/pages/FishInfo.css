@@ -126,68 +126,80 @@
 /* DESKTOP VIEW (3D Hover Flip)              */
 /* ========================================= */
 @media (min-width: 769px) {
-  .fish-card-body {
-    perspective: 1000px; /* Activates 3D space */
-    height: 300px; /* Fixed height for the flipping area */
-  }
+    .fish-card-body {
+        perspective: 1000px; /* Activates 3D space */
+        height: 300px; /* Fixed height for the flipping area */
+    }
 
-  .fish-card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
-    transform-style: preserve-3d;
-  }
+    .fish-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+        transform-style: preserve-3d;
+    }
 
-  /* The actual flip trigger */
-  .fish-card:hover .fish-card-inner {
-    transform: rotateY(180deg);
-  }
+    /* The actual flip trigger */
+    .fish-card:hover .fish-card-inner {
+        transform: rotateY(180deg);
+    }
 
-  .fish-card-front, .fish-card-back {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden; /* Hides the back of the element */
-  }
+    .fish-card-front, .fish-card-back {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden; /* Hides the back of the element */
+    }
 
-  .fish-card-front img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Image fills the square perfectly */
-  }
+    .fish-card-front img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Image fills the square perfectly */
+    }
 
-  .fish-card-back {
-    background-color: var(--bg-light);
-    transform: rotateY(180deg); /* Starts flipped backwards */
-    padding: 15px;
-    overflow-y: auto; /* Allows scrolling if the description is very long */
-    box-sizing: border-box;
-  }
+    .fish-card-back {
+        background-color: var(--bg-light);
+        transform: rotateY(180deg); /* Starts flipped backwards */
+        padding: 15px;
+        overflow-y: auto; /* Allows scrolling if the description is very long */
+        box-sizing: border-box;
+    }
 }
 
 /* ========================================= */
 /* MOBILE VIEW (Static, Stacked Layout)      */
 /* ========================================= */
 @media (max-width: 768px) {
-  .fish-card-body {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .fish-card-front img {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    display: block;
-  }
+    /* Shrink the container padding so it fits the screen */
+  .fish-info-container {
+        padding: 1rem; 
+    }
 
-  .fish-card-back {
-    background-color: var(--bg-light);
-    padding: 15px;
-    border-top: 2px solid var(--light-blue);
-  }
+    /* Force the grid to be exactly 1 column wide on phones */
+    .fish-grid {
+        grid-template-columns: 1fr;
+        padding: 0;
+        gap: 1.5rem;
+    }
+
+    .fish-card-body {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .fish-card-front img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .fish-card-back {
+        background-color: var(--bg-light);
+        padding: 15px;
+        border-top: 2px solid var(--light-blue);
+    }
 }
