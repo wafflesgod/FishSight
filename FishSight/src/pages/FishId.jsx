@@ -41,6 +41,7 @@ const FishId = () => {
 
   // NEW: Function to convert image and send to Flask
   const sendFeedbackToServer = (finalLabel, status) => {
+        alert("Error: Image data was lost because the page refreshed or changed. Please re-upload the image to submit feedback.");
     if (!selectedImage) return;
 
     // Convert the image to a Base64 string so we can send it as JSON
@@ -169,7 +170,13 @@ const FishId = () => {
                   <button 
                     onClick={() => sendFeedbackToServer(correctLabel, false)}
                     disabled={!correctLabel}
-                    style={{backgroundColor: '#008CBA', color: 'white', padding: '8px 15px', border: 'none', borderRadius: '5px', width: '100%'}}
+                    style={{backgroundColor: '#008CBA', color: 'white', padding: '8px 15px', border: 'none', borderRadius: '5px', width: '100%',
+                        position: 'relative', /* Fixes invisible CSS overlapping */
+                        zIndex: 50,           /* Forces button to the top layer */
+                        fontSize: '1rem',
+                        fontWeight: 'bold',
+                        cursor: 'pointer'
+                        }}
                   >
                     Submit Correction to AI Database
                   </button>
