@@ -1,0 +1,16 @@
+# Web Framework & Production Server
+flask==3.0.0
+flask-cors==4.0.0
+gunicorn==21.2.0
+
+# Database Connections
+pymongo==4.6.1
+
+# AI, LLM & RAG (Groq + Langchain + Vector DB)
+langchain-groq
+langchain-google-genai
+langchain-community
+faiss-cpu
+
+# Utilities
+python-dotenv==1.0.1

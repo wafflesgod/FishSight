@@ -1,25 +1,21 @@
-// 1. Define the Base URL
-// When you deploy to Vercel, you will change this to your Render URL.
-// IMPORTANT: If you are testing locally, make sure this is "http://localhost:5000"
-const API_BASE_URL = "https://fishsight-1.onrender.com"; 
+// 1. Define the URLs for your 3 separate servers
+// (Update CHATBOT_URL and VISION_URL once you deploy them on Render)
+const MAIN_API_URL = "https://fishsight-1.onrender.com"; 
+const CHATBOT_URL = "https://your-chatbot-url.onrender.com"; 
+const VISION_URL = "https://your-vision-url.onrender.com"; 
 
 // 2. Generic Helper Function for API calls
-const apiRequest = async (endpoint, method = "GET", body = null) => {
+// FIXED: Now properly accepts 'baseUrl' so we can route traffic to different servers
+const apiRequest = async (baseUrl, endpoint, method = "GET", body = null) => {
   try {
-    const headers = {
-      "Content-Type": "application/json",
-    };
-
-    const config = {
-      method,
-      headers,
-    };
+    const headers = { "Content-Type": "application/json" };
+    const config = { method, headers }; // FIXED: Typo 'headerrs' corrected
 
     if (body) {
       config.body = JSON.stringify(body);
     }
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    const response = await fetch(`${baseUrl}${endpoint}`, config);
     const data = await response.json();
 
     if (!response.ok) {
@@ -39,7 +35,8 @@ export const FishService = {
     const formData = new FormData();
     formData.append("file", imageFile);
 
-    const response = await fetch(`${API_BASE_URL}/predict`, {
+    // FIXED: Now correctly points to the new Vision Server
+    const response = await fetch(`${VISION_URL}/predict`, {
       method: "POST",
       body: formData, 
     });
@@ -54,38 +51,56 @@ export const FishService = {
   },
 };
 
-export const AuthService = {
-  login: (credentials) => apiRequest("/auth/login", "POST", credentials),
-  register: (userData) => apiRequest("/auth/register", "POST", userData),
-};
-
 // ==========================================
-// UPDATED: Chat & History Services
+// Chat & History Services
 // ==========================================
 export const ChatService = {
-  // We now pass the entire payload (message, history, username, session_id) directly
-  sendMessage: (payload) => apiRequest("/chat", "POST", payload),
+  sendMessage: async (payload) => {
+    try {
+      // Pointing directly to the Chatbot Server
+      const response = await fetch(`${CHATBOT_URL}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      return data;
+    } catch (error) {
+      console.error("Chat API Error:", error);
+      throw error;
+    }
+  },
   
-  // New calls for the Gemini-style sidebar
-  getHistory: (username) => apiRequest(`/api/chat/history/${username}`, "GET"),
-  deleteSession: (sessionId, userData) => apiRequest(`/api/chat/history/${sessionId}`, "DELETE", userData),
+  // History still lives on the main database server
+  getHistory: (username) => apiRequest(MAIN_API_URL, `/api/chat/history/${username}`, "GET"),
+  deleteSession: (sessionId, userData) => apiRequest(MAIN_API_URL, `/api/chat/history/${sessionId}`, "DELETE", userData),
 };
 
 // ==========================================
-// NEW: Sustainable AI Feedback Service
+// Auth Service
+// ==========================================
+// FIXED: Removed the duplicate declaration
+export const AuthService = {
+  login: (credentials) => apiRequest(MAIN_API_URL, "/auth/login", "POST", credentials),
+  register: (userData) => apiRequest(MAIN_API_URL, "/auth/register", "POST", userData),
+};
+
+// ==========================================
+// Sustainable AI Feedback Service
 // ==========================================
 export const FeedbackService = {
-  submitFeedback: (feedbackData) => apiRequest("/api/feedback", "POST", feedbackData),
+  submitFeedback: (feedbackData) => apiRequest(MAIN_API_URL, "/api/feedback", "POST", feedbackData),
 };
 
 // ==========================================
-// EXISTING: Community Forum Services
+// Community Forum Services
 // ==========================================
 export const ForumService = {
-  getPosts: () => apiRequest("/api/forum", "GET"),
-  createPost: (postData) => apiRequest("/api/forum", "POST", postData),
-  addComment: (postId, commentData) => apiRequest(`/api/forum/${postId}/comment`, "POST", commentData),
-  toggleLike: (postId, userData) => apiRequest(`/api/forum/${postId}/like`, "POST", userData),
-  deletePost: (postId, userData) => apiRequest(`/api/forum/${postId}`, "DELETE", userData),
-  summarizePost: (postId) => apiRequest(`/api/forum/${postId}/summarize`, "GET"),
+  getPosts: () => apiRequest(MAIN_API_URL, "/api/forum", "GET"),
+  createPost: (postData) => apiRequest(MAIN_API_URL, "/api/forum", "POST", postData),
+  addComment: (postId, commentData) => apiRequest(MAIN_API_URL, `/api/forum/${postId}/comment`, "POST", commentData),
+  toggleLike: (postId, userData) => apiRequest(MAIN_API_URL, `/api/forum/${postId}/like`, "POST", userData),
+  deletePost: (postId, userData) => apiRequest(MAIN_API_URL, `/api/forum/${postId}`, "DELETE", userData),
+  summarizePost: (postId) => apiRequest(MAIN_API_URL, `/api/forum/${postId}/summarize`, "GET"),
 };

@@ -6,7 +6,7 @@ const FishId = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   
-  // NEW: States for Sustainable AI Feedback
+  // States for Sustainable AI Feedback
   const [feedbackGiven, setFeedbackGiven] = useState(false);
   const [isCorrect, setIsCorrect] = useState(null);
   const [correctLabel, setCorrectLabel] = useState("");
@@ -29,49 +29,59 @@ const FishId = () => {
     analyzeImageBackground(selectedImage);
   };
 
-  // NEW: Function to handle the feedback submission
-  const submitFeedback = (status) => {
-    setIsCorrect(status);
-    
-    // If they click 'Yes', we can just send it immediately
-    if (status === true) {
-      sendFeedbackToServer(globalResult.species, true);
+  // --- THE BULLETPROOF FEEDBACK FUNCTION ---
+  const sendFeedbackToServer = async (finalLabel, status) => {
+    // 1. Look for the global image URL instead of the local upload state
+    if (!globalImageUrl) {
+      alert("Error: No image found on the screen to submit.");
+      return;
+    }
+
+    try {
+      // 2. Fetch the image directly from the URL being displayed on screen
+      const response = await fetch(globalImageUrl);
+      const blob = await response.blob();
+      
+      // 3. Convert that blob into our Base64 string for the database
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = async () => {
+        const base64Image = reader.result;
+        const currentUser = localStorage.getItem('username') || 'Guest';
+
+        const feedbackData = {
+          username: currentUser,
+          original_prediction: globalResult.species,
+          corrected_label: finalLabel,
+          is_correct: status,
+          image_data: base64Image
+        };
+
+        try {
+          await fetch('https://fishsight-1.onrender.com/api/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(feedbackData),
+          });
+          setFeedbackGiven(true);
+        } catch (error) {
+          console.error("Error sending feedback:", error);
+          alert("Failed to send feedback to the server.");
+        }
+      };
+    } catch (error) {
+      console.error("Error processing image data:", error);
+      alert("Failed to process the image for feedback.");
     }
   };
 
-  // NEW: Function to convert image and send to Flask
-  const sendFeedbackToServer = (finalLabel, status) => {
-        alert("Error: Image data was lost because the page refreshed or changed. Please re-upload the image to submit feedback.");
-    if (!selectedImage) return;
-
-    // Convert the image to a Base64 string so we can send it as JSON
-    const reader = new FileReader();
-    reader.readAsDataURL(selectedImage);
-    reader.onloadend = async () => {
-      const base64Image = reader.result;
-
-      const currentUser = localStorage.getItem('username') || 'Guest';
-
-      const feedbackData = {
-        username: currentUser,
-        original_prediction: globalResult.species,
-        corrected_label: finalLabel,
-        is_correct: status,
-        image_data: base64Image
-      };
-
-      try {
-        // Change localhost to your deployed URL if testing online!
-        await fetch('https://fishsight-1.onrender.com/api/feedback', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(feedbackData),
-        });
-        setFeedbackGiven(true);
-      } catch (error) {
-        console.error("Error sending feedback:", error);
-      }
-    };
+  const submitFeedback = (status) => {
+    setIsCorrect(status);
+    
+    // If they click 'Yes', we send it immediately
+    if (status === true) {
+      sendFeedbackToServer(globalResult.species, true);
+    }
   };
 
   return (
@@ -94,7 +104,7 @@ const FishId = () => {
           </div>
         ) : (
           <div className="preview-area">
-             <p>Image Selected: {selectedImage.name}</p>
+             <p>Image Selected: {selectedImage?.name || 'Previous Image'}</p>
           </div>
         )}
       </div>
@@ -133,25 +143,35 @@ const FishId = () => {
           <p><i>{globalResult.notes}</i></p>
 
           {/* ========================================== */}
-          {/* NEW: SUSTAINABLE AI FEEDBACK UI            */}
+          {/* SUSTAINABLE AI FEEDBACK UI                 */}
           {/* ========================================== */}
           {!feedbackGiven && (
             <div style={{marginTop: '25px', padding: '15px', borderTop: '2px solid #eee'}}>
               <h4>Help FishSight Learn! 🧠</h4>
               <p>Was this prediction correct?</p>
               
-              <div style={{display: 'flex', gap: '10px', marginTop: '10px'}}>
-                <button onClick={() => submitFeedback(true)} style={{backgroundColor: '#4CAF50', color: 'white', padding: '8px 15px', border: 'none', borderRadius: '5px'}}>✅ Yes</button>
-                <button onClick={() => submitFeedback(false)} style={{backgroundColor: '#f44336', color: 'white', padding: '8px 15px', border: 'none', borderRadius: '5px'}}>❌ No</button>
+              <div style={{display: 'flex', gap: '15px', marginTop: '10px'}}>
+                <button 
+                  onClick={() => submitFeedback(true)} 
+                  style={{backgroundColor: '#4CAF50', color: 'white', padding: '12px 25px', border: 'none', borderRadius: '5px', fontSize: '1rem', cursor: 'pointer', position: 'relative', zIndex: 10}}
+                >
+                  ✅ Yes
+                </button>
+                <button 
+                  onClick={() => submitFeedback(false)} 
+                  style={{backgroundColor: '#f44336', color: 'white', padding: '12px 25px', border: 'none', borderRadius: '5px', fontSize: '1rem', cursor: 'pointer', position: 'relative', zIndex: 10}}
+                >
+                  ❌ No
+                </button>
               </div>
 
               {isCorrect === false && (
-                <div style={{marginTop: '15px', padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px'}}>
-                  <label><strong>What species is this actually?</strong></label><br/>
+                <div style={{marginTop: '15px', padding: '15px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #cbd5e1'}}>
+                  <label style={{color: '#1e293b', fontWeight: 'bold'}}>What species is this actually?</label><br/>
                   <select 
                     value={correctLabel} 
                     onChange={(e) => setCorrectLabel(e.target.value)}
-                    style={{padding: '8px', margin: '10px 0', width: '100%'}}
+                    style={{padding: '12px', margin: '12px 0', width: '100%', borderRadius: '6px', border: '1px solid #94a3b8'}}
                   >
                     <option value="">Select the correct species...</option>
                     <option value="Angel Fish">Angel Fish</option>
@@ -170,13 +190,20 @@ const FishId = () => {
                   <button 
                     onClick={() => sendFeedbackToServer(correctLabel, false)}
                     disabled={!correctLabel}
-                    style={{backgroundColor: '#008CBA', color: 'white', padding: '8px 15px', border: 'none', borderRadius: '5px', width: '100%',
-                        position: 'relative', /* Fixes invisible CSS overlapping */
-                        zIndex: 50,           /* Forces button to the top layer */
-                        fontSize: '1rem',
+                    style={{
+                        backgroundColor: !correctLabel ? '#94a3b8' : '#3F72AF', 
+                        color: 'white', 
+                        padding: '14px 15px', 
+                        border: 'none', 
+                        borderRadius: '8px', 
+                        width: '100%',
+                        position: 'relative', 
+                        zIndex: 50,           
+                        fontSize: '1.05rem',
                         fontWeight: 'bold',
-                        cursor: 'pointer'
-                        }}
+                        cursor: !correctLabel ? 'not-allowed' : 'pointer',
+                        transition: 'background-color 0.3s'
+                    }}
                   >
                     Submit Correction to AI Database
                   </button>
@@ -186,8 +213,8 @@ const FishId = () => {
           )}
 
           {feedbackGiven && (
-            <div style={{marginTop: '20px', padding: '15px', backgroundColor: '#e8f5e9', borderRadius: '5px', color: '#2e7d32'}}>
-              <strong>Thank you! 🐟</strong> Your feedback has been sent to our Sustainable AI database for future model training.
+            <div style={{marginTop: '20px', padding: '15px', backgroundColor: '#e8f5e9', borderRadius: '8px', color: '#166534', border: '1px solid #bbf7d0'}}>
+              <strong>Thank you! 🐟</strong> Your feedback has been successfully sent to our AI database.
             </div>
           )}
           {/* ========================================== */}
