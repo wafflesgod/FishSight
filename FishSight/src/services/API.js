@@ -1,8 +1,8 @@
 // 1. Define the URLs for your 3 separate servers
 // (Update CHATBOT_URL and VISION_URL once you deploy them on Render)
-const MAIN_API_URL = "https://fishsight-1.onrender.com"; 
-const CHATBOT_URL = "https://your-chatbot-url.onrender.com"; 
-const VISION_URL = "https://your-vision-url.onrender.com"; 
+const MAIN_API_URL = "https://fishsight-h6z5.onrender.com"; 
+const CHATBOT_URL = "https://fishsight-1.onrender.com"; 
+const VISION_URL = "https://fishsight.onrender.com"; 
 
 // 2. Generic Helper Function for API calls
 // FIXED: Now properly accepts 'baseUrl' so we can route traffic to different servers
