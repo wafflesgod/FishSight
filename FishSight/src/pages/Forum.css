@@ -11,13 +11,13 @@
 }
 
 .forum-header h1 {
-  color: #00897B;
+  color: var(--dark-blue);
 }
 
 .forum-loading {
   text-align: center;
   margin-top: 50px;
-  color: #00897B;
+  color: var(--primary-blue);
 }
 
 /* Create Post Box */
@@ -35,37 +35,39 @@
 
 .create-post-box h3 {
   margin: 0;
-  color: #333;
+  color: var(--dark-blue);
 }
 
-.create-post-box input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-family: inherit;
-}
-
+/* BUG FIX 1: box-sizing keeps it from sticking to the right edge */
+/* BUG FIX 2: word-break stops gibberish strings from breaking the layout */
+.create-post-box input,
 .create-post-box textarea {
   width: 100%;
   padding: 10px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   font-family: inherit;
-  overflow: hidden; /* Hides the scrollbar */
-  resize: none; /* Removes the manual drag corner */
-  min-height: 80px; /* Starts a bit taller */
+  box-sizing: border-box; 
+  word-break: break-word; 
+  white-space: pre-wrap;
+}
+
+.create-post-box textarea {
+  overflow: hidden; 
+  resize: none; 
+  min-height: 80px; 
 }
 
 .create-post-box input:focus,
 .create-post-box textarea:focus {
   outline: none;
-  border-color: #00897B;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(63, 114, 175, 0.2);
 }
 
 .btn-submit-post {
   align-self: flex-end;
-  background-color: #00897B;
+  background-color: var(--primary-blue);
   color: white;
   padding: 8px 20px;
   border: none;
@@ -76,17 +78,17 @@
 }
 
 .btn-submit-post:hover {
-  background-color: #00695C;
+  background-color: var(--dark-blue);
 }
 
 .login-prompt {
   text-align: center;
-  background-color: #f0fdfa;
+  background-color: var(--bg-light);
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px dashed #00897B;
+  border: 1px dashed var(--primary-blue);
   margin-bottom: 2rem;
-  color: #00695C;
+  color: var(--dark-blue);
 }
 
 /* Post Cards */
@@ -112,7 +114,7 @@
 
 .post-header h2 {
   margin: 0 0 0.2rem 0;
-  color: #1e293b;
+  color: var(--dark-blue);
   font-size: 1.4rem;
 }
 
@@ -125,6 +127,7 @@
   color: #333;
   line-height: 1.6;
   margin-bottom: 1.5rem;
+  word-break: break-word; /* Prevents long strings breaking post body */
 }
 
 /* Comments Section */
@@ -147,15 +150,6 @@
   margin-bottom: 1rem;
 }
 
-.comment-bubble {
-  background-color: white;
-  padding: 8px 12px;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  font-size: 0.95rem;
-  width: fit-content;
-}
-
 .add-comment-box {
   display: flex;
   gap: 0.5rem;
@@ -166,33 +160,39 @@
 
 .add-comment-box textarea {
   flex-grow: 1; 
-  padding: 8px 15px; /* Matched to the Reply button padding */
+  padding: 8px 15px; 
   border: 1px solid #cbd5e1;
-  border-radius: 20px; /* Makes it a pill shape to perfectly match the button */
+  border-radius: 20px; 
   font-family: inherit;
   overflow: hidden; 
   resize: none; 
-  min-height: 36px; /* Starts exactly at 1 line tall */
-  box-sizing: border-box; /* Keeps it neatly inside the gray box */
+  min-height: 36px; 
+  box-sizing: border-box; 
   line-height: 1.4;
+  word-break: break-word;
 }
 
-/* Make sure the Reply button height matches the 1-line text box */
+.add-comment-box textarea:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+}
+
 .add-comment-box button {
   background-color: white;
-  color: #00897B;
-  border: 1px solid #00897B;
+  color: var(--primary-blue);
+  border: 1px solid var(--primary-blue);
   padding: 8px 15px;
   border-radius: 20px;
   font-weight: bold;
   cursor: pointer;
-  height: 36px; /* Locks the button height to match the input */
+  height: 36px; 
   display: flex;
   align-items: center;
+  transition: background-color 0.2s;
 }
 
 .add-comment-box button:hover {
-  background-color: #f0fdfa;
+  background-color: var(--bg-light);
 }
 
 /* --- Live Search Bar --- */
@@ -206,10 +206,12 @@
   border: 2px solid #e2e8f0;
   margin-bottom: 2rem;
   transition: border-color 0.3s ease;
+  box-sizing: border-box; 
+  width: 100%;
 }
 
 .forum-search-bar:focus-within {
-  border-color: #00897B; /* Turns teal when you click inside */
+  border-color: var(--primary-blue); 
 }
 
 .search-icon {
@@ -230,11 +232,11 @@
 .comment-bubble {
   background-color: white;
   padding: 10px 15px;
-  border-radius: 12px; /* Slightly sharper corners look better on wide boxes */
+  border-radius: 12px; 
   border: 1px solid #e2e8f0;
   font-size: 0.95rem;
-  width: 100%; /* THIS stretches it across the screen! */
-  box-sizing: border-box; /* Prevents padding from pushing it outside the box */
+  width: 100%; 
+  box-sizing: border-box; 
 }
 
 .comment-header {
@@ -246,7 +248,7 @@
 }
 
 .comment-header strong {
-  color: #1e293b;
+  color: var(--dark-blue);
 }
 
 .comment-date {
@@ -256,7 +258,7 @@
 
 .comment-text {
   color: #475569;
-  word-break: break-word;
+  word-break: break-word; /* Forces unbroken text to wrap nicely */
 }
 
 /* --- Forum Controls (Tabs & Create Button) --- */
@@ -286,20 +288,11 @@
 }
 
 .tab-btn.active {
-  background-color: #00897B;
+  background-color: var(--primary-blue);
   color: white;
-  box-shadow: 0 2px 4px rgba(0, 137, 123, 0.3);
+  box-shadow: 0 2px 4px rgba(63, 114, 175, 0.3);
 }
 
-.btn-toggle-post {
-  background-color: #1e293b;
-  color: white;
-  border: none;
-  padding: 8px 20px;
-  border-radius: 20px;
-  font-weight: bold;
-  cursor: pointer;
-}
 
 /* --- Post Actions (Like & Delete) --- */
 .post-header-top {
@@ -308,26 +301,13 @@
   align-items: flex-start;
 }
 
-.btn-delete {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  opacity: 0.5;
-  transition: opacity 0.2s;
-}
-
-.btn-delete:hover {
-  opacity: 1;
-}
-
 .post-actions {
   display: flex;
-  flex-direction: row; /* Forces the buttons to sit side-by-side */
-  align-items: center; /* Vertically centers them so they look neat */
-  gap: 12px; /* Adds a nice gap between the Like and AI buttons */
+  flex-direction: row; 
+  align-items: center; 
+  gap: 12px; 
   margin-bottom: 1.5rem;
-  flex-wrap: wrap; /* If a user is on a tiny mobile screen, this allows it to wrap safely instead of squishing */
+  flex-wrap: wrap; 
 }
 
 .btn-like {
@@ -354,8 +334,9 @@
   background-color: #f1f5f9;
 }
 
+/* AI Summary Theme Update */
 .btn-ai-summary {
-  background: linear-gradient(135deg, #00897B 0%, #00695C 100%);
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
   color: white;
   border: none;
   padding: 6px 15px;
@@ -370,7 +351,7 @@
 
 .btn-ai-summary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 137, 123, 0.3);
+  box-shadow: 0 4px 8px rgba(63, 114, 175, 0.3);
 }
 
 .btn-ai-summary:disabled {
@@ -381,8 +362,8 @@
 }
 
 .ai-summary-box {
-  background-color: #f0fdfa;
-  border-left: 4px solid #00897B;
+  background-color: var(--bg-light);
+  border-left: 4px solid var(--primary-blue);
   padding: 15px;
   border-radius: 0 8px 8px 0;
   margin-bottom: 1.5rem;
@@ -391,7 +372,488 @@
 }
 
 .ai-summary-box strong {
-  color: #00695C;
+  color: var(--dark-blue);
   display: block;
   margin-bottom: 5px;
+}
+
+/* ============================================================== */
+/* 3D FLIP BUTTON (Click Controlled) (Component & SVG Support)    */
+/* ============================================================== */
+.btn-flip {
+  position: relative;
+  width: 220px; /* We need a fixed width now so the absolute layers don't collapse */
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  perspective: 1000px;
+  padding: 0;
+  font-family: inherit;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* The actual spinning sides */
+.flip-front, .flip-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+/* Base States */
+.flip-front {
+  background: var(--primary-blue);
+  transform: translateY(0) rotateX(0);
+  opacity: 1;
+}
+
+.flip-back {
+  background: var(--dark-blue);
+  transform: translateY(-50%) rotateX(90deg);
+  opacity: 0;
+}
+
+/* Flipped States (Triggered by React) */
+.btn-flip.is-flipped .flip-front {
+  transform: translateY(50%) rotateX(90deg);
+  opacity: 0;
+}
+
+.btn-flip.is-flipped .flip-back {
+  transform: translateY(0) rotateX(0);
+  opacity: 1;
+}
+
+/* ========================================= */
+/* CUSTOM TOAST NOTIFICATIONS                */
+/* ========================================= */
+.custom-toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 14px 24px;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.95rem;
+  z-index: 9999;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  /* Triggers slide up on load, and fade out exactly when the 3 seconds are up */
+  animation: toastSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, 
+             toastFadeOut 0.4s ease 2.6s forwards;
+}
+
+.toast-success {
+  background-color: #10b981; /* Premium Green */
+  border-left: 4px solid #047857;
+}
+
+.toast-error {
+  background-color: #ef4444; /* Premium Red */
+  border-left: 4px solid #b91c1c;
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toastFadeOut {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+/* ========================================= */
+/* ANIMATED TRASH BUTTON (Delete Post)       */
+/* ========================================= */
+.delete-btn-animated {
+  --background: var(--dark-blue);
+  --background-hover: var(--primary-blue);
+  --text: #fff;
+  --shadow: rgba(0, 9, 61, .2);
+  --paper: var(--light-blue);
+  --paper-lines: #fff;
+  --trash: var(--light-blue);
+  --trash-lines: var(--primary-blue);
+  --check: #fff;
+  --check-background: var(--primary-blue);
+  position: relative;
+  border: none;
+  outline: none;
+  background: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  min-width: 120px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  background: var(--btn, var(--background));
+  box-shadow: 0 var(--shadow-y, 4px) var(--shadow-blur, 8px) var(--shadow);
+  transform: scale(var(--scale, 1));
+  transition: transform .3s, box-shadow .3s, background .3s;
+}
+
+.delete-btn-animated span {
+  display: block;
+  font-size: 13px;
+  line-height: 25px;
+  font-weight: 600;
+  opacity: var(--span-opacity, 1);
+  transform: translateX(var(--span-x, 0)) translateZ(0);
+  transition: transform .4s ease var(--span-delay, .2s), opacity .3s ease var(--span-delay, .2s);
+}
+
+.delete-btn-animated .trash {
+  display: block;
+  position: relative;
+  left: -8px;
+  transform: translate(var(--trash-x, 0), var(--trash-y, 1px)) translateZ(0) scale(var(--trash-scale, .64));
+  transition: transform .5s;
+}
+
+.delete-btn-animated .trash:before,
+.delete-btn-animated .trash:after {
+  content: '';
+  position: absolute;
+  height: 8px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--icon, var(--trash));
+  bottom: 100%;
+  transform-origin: 50% 6px;
+  transform: translate(var(--x, 3px), 2px) scaleY(var(--sy, .7)) rotate(var(--r, 0deg));
+  transition: transform .4s, background .3s;
+}
+
+.delete-btn-animated .trash:before { left: 1px; }
+.delete-btn-animated .trash:after { right: 1px; --x: -3px; }
+
+.delete-btn-animated .trash .top {
+  position: absolute;
+  overflow: hidden;
+  left: -4px;
+  right: -4px;
+  bottom: 100%;
+  height: 40px;
+  z-index: 1;
+  transform: translateY(2px);
+}
+
+.delete-btn-animated .trash .top:before,
+.delete-btn-animated .trash .top:after {
+  content: '';
+  position: absolute;
+  border-radius: 1px;
+  background: var(--icon, var(--trash));
+  width: var(--w, 12px);
+  height: var(--h, 2px);
+  left: var(--l, 8px);
+  bottom: var(--b, 5px);
+  transition: background .3s, transform .4s;
+}
+
+.delete-btn-animated .trash .top:after {
+  --w: 28px;
+  --h: 2px;
+  --l: 0;
+  --b: 0;
+  transform: scaleX(var(--trash-line-scale, 1));
+}
+
+.delete-btn-animated .trash .top .paper {
+  width: 14px;
+  height: 18px;
+  background: var(--paper);
+  left: 7px;
+  bottom: 0;
+  border-radius: 1px;
+  position: absolute;
+  transform: translateY(-16px);
+  opacity: 0;
+}
+
+.delete-btn-animated .trash .top .paper:before,
+.delete-btn-animated .trash .top .paper:after {
+  content: '';
+  width: var(--w, 10px);
+  height: 2px;
+  border-radius: 1px;
+  position: absolute;
+  left: 2px;
+  top: var(--t, 2px);
+  background: var(--paper-lines);
+  transform: scaleY(.7);
+  box-shadow: 0 9px 0 var(--paper-lines);
+}
+
+.delete-btn-animated .trash .top .paper:after {
+  --t: 5px;
+  --w: 7px;
+}
+
+.delete-btn-animated .trash .box {
+  width: 20px;
+  height: 25px;
+  border: 2px solid var(--icon, var(--trash));
+  border-radius: 1px 1px 4px 4px;
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+  transition: border-color .3s;
+}
+
+.delete-btn-animated .trash .box:before,
+.delete-btn-animated .trash .box:after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: var(--h, 20px);
+  top: 0;
+  left: var(--l, 50%);
+  background: var(--b, var(--trash-lines));
+}
+
+.delete-btn-animated .trash .box:before {
+  border-radius: 2px;
+  margin-left: -2px;
+  transform: translateX(-3px) scale(.6);
+  box-shadow: 10px 0 0 var(--trash-lines);
+  opacity: var(--trash-lines-opacity, 1);
+  transition: transform .4s, opacity .4s;
+}
+
+.delete-btn-animated .trash .box:after {
+  --h: 16px;
+  --b: var(--paper);
+  --l: 1px;
+  transform: translate(-.5px, -16px) scaleX(.5);
+  box-shadow: 7px 0 0 var(--paper), 14px 0 0 var(--paper), 21px 0 0 var(--paper);
+}
+
+.delete-btn-animated .trash .check {
+  padding: 4px 3px;
+  border-radius: 50%;
+  background: var(--check-background);
+  position: absolute;
+  left: 2px;
+  top: 24px;
+  opacity: var(--check-opacity, 0);
+  transform: translateY(var(--check-y, 0)) scale(var(--check-scale, .2));
+  transition: transform var(--check-duration, .2s) ease var(--check-delay, 0s), opacity var(--check-duration-opacity, .2s) ease var(--check-delay, 0s);
+}
+
+.delete-btn-animated .trash .check svg {
+  width: 8px;
+  height: 6px;
+  display: block;
+  fill: none;
+  stroke-width: 1.5;
+  stroke-dasharray: 9px;
+  stroke-dashoffset: var(--check-offset, 9px);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke: var(--check);
+  transition: stroke-dashoffset .4s ease var(--checkmark-delay, .4s);
+}
+
+/* The Active "Deleting" State! */
+.delete-btn-animated.delete {
+  --span-opacity: 0;
+  --span-x: 16px;
+  --span-delay: 0s;
+  --trash-x: 35px; 
+  --trash-y: 2px;
+  --trash-scale: 1;
+  --trash-lines-opacity: 0;
+  --trash-line-scale: 0;
+  --icon: #fff;
+  --check-offset: 0;
+  --check-opacity: 1;
+  --check-scale: 1;
+  --check-y: 16px;
+  --check-delay: 1.7s;
+  --checkmark-delay: 2.1s;
+  --check-duration: .55s;
+  --check-duration-opacity: .3s;
+}
+
+.delete-btn-animated.delete .trash:before,
+.delete-btn-animated.delete .trash:after { --sy: 1; --x: 0; }
+.delete-btn-animated.delete .trash:before { --r: 40deg; }
+.delete-btn-animated.delete .trash:after { --r: -40deg; }
+.delete-btn-animated.delete .trash .top .paper { animation: paper 1.5s linear forwards .5s; }
+.delete-btn-animated.delete .trash .box:after { animation: cut 1.5s linear forwards .5s; }
+
+.delete-btn-animated.delete,
+.delete-btn-animated:hover {
+  --btn: var(--background-hover);
+  --shadow-y: 5px;
+  --shadow-blur: 9px;
+}
+
+.delete-btn-animated:active {
+  --shadow-y: 2px;
+  --shadow-blur: 5px;
+  --scale: .94;
+}
+
+@keyframes paper {
+  10%, 100% { opacity: 1; }
+  20% { transform: translateY(-16px); }
+  40% { transform: translateY(0); }
+  70%, 100% { transform: translateY(24px); }
+}
+
+@keyframes cut {
+  0%, 40% { transform: translate(-.5px, -16px) scaleX(.5); }
+  100% { transform: translate(-.5px, 24px) scaleX(.5); }
+}
+
+/* ========================================= */
+/* SWIPE ANIMATIONS                          */
+/* ========================================= */
+
+.forum-feed-wrapper {
+  width: 100%;
+  overflow-x: hidden; /* Prevents horizontal scrolling bugs while swiping */
+}
+
+/* Animates the feed every time it updates */
+.forum-feed {
+  animation: feedFadeIn 0.3s ease-out forwards;
+}
+
+@keyframes feedFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================= */
+/* MOBILE RESPONSIVE TWEAKS                  */
+/* ========================================= */
+@media (max-width: 768px) {
+  .forum-container {
+    padding: 1rem; /* Shrinks the giant 2rem desktop padding */
+  }
+
+  .forum-search-bar {
+    padding: 0.6rem 1rem; /* Shrinks the inner padding of the search bar */
+  }
+}
+
+/* ========================================= */
+/* ANIMATED HEART BUTTON (Uiverse)           */
+/* ========================================= */
+
+.btn-like {
+  /* We remove some padding so the heart fits nicely next to the text */
+  padding: 4px 15px 4px 10px;
+}
+
+.heart-container {
+  --heart-color: #e11d48; /* Matches your active like text color */
+  position: relative;
+  width: 24px;  /* Scaled down to fit the button */
+  height: 24px; /* Scaled down to fit the button */
+  transition: .3s;
+  pointer-events: none; /* Prevents the invisible checkbox from stealing clicks from the main button */
+}
+
+.heart-container .checkbox {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: 20;
+}
+
+.heart-container .svg-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.heart-container .svg-outline,
+.heart-container .svg-filled {
+  fill: var(--heart-color);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.heart-container .svg-outline {
+  /* Give the outline a softer color when un-liked */
+  fill: #94a3b8; 
+}
+
+.btn-like:hover .heart-container .svg-outline {
+  fill: var(--heart-color);
+}
+
+.heart-container .svg-filled {
+  animation: keyframes-svg-filled 1s;
+  display: none;
+}
+
+.heart-container .svg-celebrate {
+  position: absolute;
+  animation: keyframes-svg-celebrate .5s;
+  animation-fill-mode: forwards;
+  display: none;
+  stroke: var(--heart-color);
+  fill: var(--heart-color);
+  stroke-width: 2px;
+}
+
+/* Ties the animation to React's 'checked' state! */
+.heart-container .checkbox:checked ~ .svg-container .svg-filled {
+  display: block;
+}
+
+.heart-container .checkbox:checked ~ .svg-container .svg-celebrate {
+  display: block;
+}
+
+@keyframes keyframes-svg-filled {
+  0% { transform: scale(0); }
+  25% { transform: scale(1.2); }
+  50% { transform: scale(1); filter: brightness(1.5); }
+}
+
+@keyframes keyframes-svg-celebrate {
+  0% { transform: scale(0); }
+  50% { opacity: 1; filter: brightness(1.5); }
+  100% { transform: scale(1.4); opacity: 0; display: none; }
 }
