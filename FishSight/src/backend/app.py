@@ -1,24 +1,11 @@
 import os
-import traceback
-import numpy as np
-from PIL import Image
-import io 
-import gc
 import uuid
-import base64
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from datetime import datetime, timezone
 from bson.objectid import ObjectId
-
-# --- THE MAGIC BULLET IMPORTS ---
-#import tf_keras as keras
-#from tf_keras.applications.resnet50 import ResNet50, preprocess_input
-#from tf_keras.layers import Dense, GlobalAveragePooling2D, Dropout
-#from tf_keras.models import Model
-# --------------------------------
 
 # Import your MongoDB collection from database.py
 from database import users_collection, species_collection, forum_collection, chat_history_collection 
