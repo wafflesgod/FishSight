@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { InfoService } from '../services/API';
 import './FishInfo.css';
 
 const FishInfo = () => {
@@ -8,8 +9,7 @@ const FishInfo = () => {
   useEffect(() => {
     const fetchFishData = async () => {
       try {
-        const response = await fetch('https://fishsight-1.onrender.com/api/fish-info');
-        const data = await response.json();
+        const data = await InfoService.getFishList();
         setFishList(data);
       } catch (error) {
         console.error("Error fetching fish info:", error);

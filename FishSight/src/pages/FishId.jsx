@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useFish } from '../context/FishContext'; 
+import { FeedbackService } from '../services/API';
 import './FishId.css';
 
 const FishId = () => {
@@ -50,23 +51,19 @@ const FishId = () => {
         const currentUser = localStorage.getItem('username') || 'Guest';
 
         const feedbackData = {
-          username: currentUser,
-          original_prediction: globalResult.species,
-          corrected_label: finalLabel,
-          is_correct: status,
-          image_data: base64Image
+            username: currentUser,
+            original_prediction: globalResult.species,
+            corrected_label: finalLabel,
+            is_correct: status,
+            image_data: base64Image
         };
 
         try {
-          await fetch('https://fishsight-1.onrender.com/api/feedback', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(feedbackData),
-          });
-          setFeedbackGiven(true);
+            await FeedbackService.submitFeedback(feedbackData);
+            setFeedbackGiven(true);
         } catch (error) {
-          console.error("Error sending feedback:", error);
-          alert("Failed to send feedback to the server.");
+            console.error("Error sending feedback:", error);
+            alert("Failed to send feedback to the server.");
         }
       };
     } catch (error) {

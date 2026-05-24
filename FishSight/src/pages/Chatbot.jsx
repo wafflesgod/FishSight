@@ -34,11 +34,8 @@ const Chatbot = () => {
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch(`https://fishsight-1.onrender.com/api/chat/history/${username}`);
-      if (res.ok) {
-        const data = await res.json();
-        setSessions(data);
-      }
+      const res = await ChatService.getHistory(username);
+      setSessions(data);
     } catch (err) {
       console.error("Failed to load history", err);
     }
@@ -68,11 +65,7 @@ const Chatbot = () => {
   const deleteSession = async (sessionId, e) => {
     e.stopPropagation(); // Prevents the click from also triggering loadSession
     try {
-      await fetch(`https://fishsight-1.onrender.com/api/chat/history/${sessionId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username })
-      });
+        await ChatService.deleteSession(sessionId, { username });
       
       // If we delete the chat we are currently looking at, clear the screen
       if (currentSessionId === sessionId) {

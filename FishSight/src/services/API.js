@@ -104,3 +104,10 @@ export const ForumService = {
   deletePost: (postId, userData) => apiRequest(MAIN_API_URL, `/api/forum/${postId}`, "DELETE", userData),
   summarizePost: (postId) => apiRequest(MAIN_API_URL, `/api/forum/${postId}/summarize`, "GET"),
 };
+
+// ==========================================
+// Fish Database Service
+// ==========================================
+export const InfoService = {
+  getFishList: () => apiRequest(MAIN_API_URL, "/api/fish-info", "GET"),
+};
