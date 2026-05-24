@@ -227,6 +227,7 @@
   outline: none;
   font-size: 1.1rem;
   color: #333;
+  min-width: 0;
 }
 
 /* --- Comment Bubble Tweaks --- */
@@ -783,6 +784,12 @@
   /* 🚨 NEW: Completely hide the word "Delete" on phones */
   .delete-btn-animated span {
     display: none;
+  }
+
+  .delete-btn-animated .trash {
+    left: 0;
+    transform: scale(0.7) translateY(2px); /* Scales it slightly and centers vertically */
+    margin: 0 auto;
   }
 
   /* 🚨 NEW: Stop the trash can from sliding right during animation since it's already centered */

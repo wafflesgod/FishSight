@@ -1,25 +1,26 @@
 import React, { useState } from 'react';
 import { useFish } from '../context/FishContext'; 
-import { FeedbackService } from '../services/API';
+import { FeedbackService } from '../services/API'; 
 import './FishId.css';
 
 const FishId = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   
-  // States for Sustainable AI Feedback
   const [feedbackGiven, setFeedbackGiven] = useState(false);
   const [isCorrect, setIsCorrect] = useState(null);
   const [correctLabel, setCorrectLabel] = useState("");
 
   const { analyzeImageBackground, globalResult, globalImageUrl } = useFish();
 
+  // 🚨 THE FIX: If local preview is wiped by navigation, fall back to the global image!
+  const activePreview = previewUrl || globalImageUrl;
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedImage(file);
       setPreviewUrl(URL.createObjectURL(file)); 
-      // Reset feedback states when a new image is uploaded
       setFeedbackGiven(false);
       setIsCorrect(null);
     }
@@ -30,20 +31,16 @@ const FishId = () => {
     analyzeImageBackground(selectedImage);
   };
 
-  // --- THE BULLETPROOF FEEDBACK FUNCTION ---
   const sendFeedbackToServer = async (finalLabel, status) => {
-    // 1. Look for the global image URL instead of the local upload state
     if (!globalImageUrl) {
       alert("Error: No image found on the screen to submit.");
       return;
     }
 
     try {
-      // 2. Fetch the image directly from the URL being displayed on screen
       const response = await fetch(globalImageUrl);
       const blob = await response.blob();
       
-      // 3. Convert that blob into our Base64 string for the database
       const reader = new FileReader();
       reader.readAsDataURL(blob);
       reader.onloadend = async () => {
@@ -51,19 +48,19 @@ const FishId = () => {
         const currentUser = localStorage.getItem('username') || 'Guest';
 
         const feedbackData = {
-            username: currentUser,
-            original_prediction: globalResult.species,
-            corrected_label: finalLabel,
-            is_correct: status,
-            image_data: base64Image
+          username: currentUser,
+          original_prediction: globalResult.species,
+          corrected_label: finalLabel,
+          is_correct: status,
+          image_data: base64Image
         };
 
         try {
-            await FeedbackService.submitFeedback(feedbackData);
-            setFeedbackGiven(true);
+          await FeedbackService.submitFeedback(feedbackData);
+          setFeedbackGiven(true);
         } catch (error) {
-            console.error("Error sending feedback:", error);
-            alert("Failed to send feedback to the server.");
+          console.error("Error sending feedback:", error);
+          alert("Failed to send feedback to the server.");
         }
       };
     } catch (error) {
@@ -74,8 +71,6 @@ const FishId = () => {
 
   const submitFeedback = (status) => {
     setIsCorrect(status);
-    
-    // If they click 'Yes', we send it immediately
     if (status === true) {
       sendFeedbackToServer(globalResult.species, true);
     }
@@ -93,7 +88,8 @@ const FishId = () => {
           accept="image/*" 
           onChange={handleImageChange} 
         />
-        {!previewUrl ? (
+        {/* 🚨 CHANGED: Now uses activePreview */}
+        {!activePreview ? (
           <div>
             <div className="icon-large">📁</div>
             <h3>Click or Drag Image Here</h3>
@@ -107,13 +103,27 @@ const FishId = () => {
       </div>
 
       {/* Image Preview Area */}
-      {previewUrl && (
+      {/* 🚨 CHANGED: Now uses activePreview */}
+      {activePreview && (
         <div className="preview-container">
-          <img src={previewUrl} alt="Fish Preview" className="preview-image" />
+          <img src={activePreview} alt="Fish Preview" className="preview-image" />
           <div className="actions">
-            <button className="analyze-btn" onClick={handleAnalyze}>
-              🔍 Identify Fish
-            </button>
+            
+            {/* 🚨 NEW: Dynamic Button States based on Context memory! */}
+            {activePreview === globalImageUrl && !globalResult ? (
+              <button className="analyze-btn" disabled style={{ backgroundColor: '#f59e0b' }}>
+                ⏳ Analyzing in Background...
+              </button>
+            ) : activePreview === globalImageUrl && globalResult ? (
+              <button className="analyze-btn" disabled style={{ backgroundColor: '#10b981' }}>
+                ✅ Analysis Complete
+              </button>
+            ) : (
+              <button className="analyze-btn" onClick={handleAnalyze}>
+                🔍 Identify Fish
+              </button>
+            )}
+
             <p className="text-muted text-sm mt-2" style={{ fontStyle: 'italic', marginTop: '10px' }}>
               Analysis runs in the background. Feel free to navigate to other tabs!
             </p>
@@ -139,9 +149,7 @@ const FishId = () => {
           <p><strong>Care Level:</strong> {globalResult.careLevel}</p>
           <p><i>{globalResult.notes}</i></p>
 
-          {/* ========================================== */}
-          {/* SUSTAINABLE AI FEEDBACK UI                 */}
-          {/* ========================================== */}
+          {/* SUSTAINABLE AI FEEDBACK UI */}
           {!feedbackGiven && (
             <div style={{marginTop: '25px', padding: '15px', borderTop: '2px solid #eee'}}>
               <h4>Help FishSight Learn! 🧠</h4>
@@ -214,8 +222,6 @@ const FishId = () => {
               <strong>Thank you! 🐟</strong> Your feedback has been successfully sent to our AI database.
             </div>
           )}
-          {/* ========================================== */}
-
         </div>
       )}
     </div>
