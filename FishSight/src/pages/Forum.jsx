@@ -181,7 +181,7 @@ const Forum = () => {
         <span className="search-icon">🔍</span>
         <input 
           type="text" 
-          placeholder="Search for species, tank setups, or advice..." 
+          placeholder="Search..." 
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />

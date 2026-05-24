@@ -382,7 +382,7 @@
 /* ============================================================== */
 .btn-flip {
   position: relative;
-  width: 220px; /* We need a fixed width now so the absolute layers don't collapse */
+  width: 175px; /* We need a fixed width now so the absolute layers don't collapse */
   height: 40px;
   background: transparent;
   border: none;
@@ -391,8 +391,9 @@
   padding: 0;
   font-family: inherit;
   font-weight: bold;
+  font-size: 0.80rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 /* The actual spinning sides */
@@ -768,6 +769,24 @@
 
   .forum-search-bar {
     padding: 0.6rem 1rem; /* Shrinks the inner padding of the search bar */
+  }
+
+  .delete-btn-animated {
+    padding: 0;
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+
+  /* 🚨 NEW: Completely hide the word "Delete" on phones */
+  .delete-btn-animated span {
+    display: none;
+  }
+
+  /* 🚨 NEW: Stop the trash can from sliding right during animation since it's already centered */
+  .delete-btn-animated.delete {
+    --trash-x: 0px; 
   }
 }
 
