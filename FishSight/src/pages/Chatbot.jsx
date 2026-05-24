@@ -34,7 +34,7 @@ const Chatbot = () => {
 
   const fetchHistory = async () => {
     try {
-      const res = await ChatService.getHistory(username);
+      const data = await ChatService.getHistory(username);
       setSessions(data);
     } catch (err) {
       console.error("Failed to load history", err);
