@@ -155,7 +155,7 @@
   gap: 0.5rem;
   width: 100%; 
   margin-top: 10px;
-  align-items: flex-start;
+  align-items: flex-end;
 }
 
 .add-comment-box textarea {
@@ -168,7 +168,8 @@
   resize: none; 
   min-height: 36px; 
   box-sizing: border-box; 
-  line-height: 1.4;
+  height: 36px;
+  line-height: 18px;
   word-break: break-word;
 }
 
@@ -383,7 +384,7 @@
 .btn-flip {
   position: relative;
   width: 175px; /* We need a fixed width now so the absolute layers don't collapse */
-  height: 40px;
+  height: 36px;
   background: transparent;
   border: none;
   cursor: pointer;

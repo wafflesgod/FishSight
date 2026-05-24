@@ -363,7 +363,8 @@ const Forum = () => {
 
                     {currentUser && (
                         <div className="add-comment-box">
-                        <textarea 
+                        <textarea
+                            rows="1"
                             placeholder="Write a reply..." 
                             value={commentInputs[post._id] || ""}
                             onChange={(e) => {
