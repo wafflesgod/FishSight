@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useFish } from '../context/FishContext'; 
 import { FeedbackService } from '../services/API'; 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {faCheck, faX, faHourglass, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import './FishId.css';
 
 const FishId = () => {
@@ -13,7 +15,6 @@ const FishId = () => {
 
   const { analyzeImageBackground, globalResult, globalImageUrl } = useFish();
 
-  // 🚨 THE FIX: If local preview is wiped by navigation, fall back to the global image!
   const activePreview = previewUrl || globalImageUrl;
 
   const handleImageChange = (e) => {
@@ -29,6 +30,9 @@ const FishId = () => {
   const handleAnalyze = () => {
     if (!selectedImage) return;
     analyzeImageBackground(selectedImage);
+    
+    // 🚨 THE FIX: Wipe the local preview link so it instantly syncs with the Global Brain!
+    setPreviewUrl(null); 
   };
 
   const sendFeedbackToServer = async (finalLabel, status) => {
@@ -79,7 +83,7 @@ const FishId = () => {
   return (
     <div className="fish-id-container">
       <h1>Identify Your Fish</h1>
-      <p>Upload a clear photo of your fish, and our AI will identify the species.</p>
+      <p style={{color: '#3F72AF'}}>Upload a clear photo of your fish, and our AI will identify the species.</p>
 
       {/* Upload Zone */}
       <div className="upload-box">
@@ -88,43 +92,50 @@ const FishId = () => {
           accept="image/*" 
           onChange={handleImageChange} 
         />
-        {/* 🚨 CHANGED: Now uses activePreview */}
         {!activePreview ? (
           <div>
             <div className="icon-large">📁</div>
-            <h3>Click or Drag Image Here</h3>
-            <p className="text-muted">Supports JPG, PNG, JPEG</p>
+            <h3 style={{color: '#112D4E'}}>Click or Drag Image Here</h3>
+            <p style={{color: '#3F72AF'}}>Supports JPG, PNG, JPEG</p>
           </div>
         ) : (
           <div className="preview-area">
-             <p>Image Selected: {selectedImage?.name || 'Previous Image'}</p>
+             <p style={{color: '#112D4E', fontWeight: 'bold'}}>Image Selected: {selectedImage?.name || 'Previous Image'}</p>
           </div>
         )}
       </div>
 
       {/* Image Preview Area */}
-      {/* 🚨 CHANGED: Now uses activePreview */}
       {activePreview && (
         <div className="preview-container">
           <img src={activePreview} alt="Fish Preview" className="preview-image" />
           <div className="actions">
             
-            {/* 🚨 NEW: Dynamic Button States based on Context memory! */}
+            {/* 🚨 DYNAMIC BUTTONS RESTORED (Yellow & Green + Vertical Flip Fix) */}
             {activePreview === globalImageUrl && !globalResult ? (
-              <button className="analyze-btn" disabled style={{ backgroundColor: '#f59e0b' }}>
-                ⏳ Analyzing in Background...
+              <button className="analyze-btn" disabled style={{ backgroundColor: '#f59e0b', color: 'white' }}>
+                <FontAwesomeIcon 
+                  icon={faHourglass} 
+                  flip 
+                  style={{
+                    color: "white", 
+                    '--fa-animation-duration': '3s', 
+                    '--fa-flip-x': '0', /* Disabled horizontal flip */
+                    '--fa-flip-y': '1'  /* Enabled vertical upside-down flip */
+                  }} 
+                /> Analyzing in Background...
               </button>
             ) : activePreview === globalImageUrl && globalResult ? (
-              <button className="analyze-btn" disabled style={{ backgroundColor: '#10b981' }}>
-                ✅ Analysis Complete
+              <button className="analyze-btn" disabled style={{ backgroundColor: '#10b981', color: 'white' }}>
+                <FontAwesomeIcon icon={faCheck} beatFade style={{color: "white", '--fa-animation-duration': '1.25s'}} /> Analysis Complete
               </button>
             ) : (
               <button className="analyze-btn" onClick={handleAnalyze}>
-                🔍 Identify Fish
+                <FontAwesomeIcon icon={faMagnifyingGlass} beat style={{color: "white", '--fa-animation-duration': '1.5s'}} /> Identify Fish
               </button>
             )}
 
-            <p className="text-muted text-sm mt-2" style={{ fontStyle: 'italic', marginTop: '10px' }}>
+            <p style={{ fontStyle: 'italic', marginTop: '10px', color: '#3F72AF', fontSize: '0.9rem' }}>
               Analysis runs in the background. Feel free to navigate to other tabs!
             </p>
           </div>
@@ -134,7 +145,7 @@ const FishId = () => {
       {/* Results Section */}
       {globalResult && (
         <div className="result-box">
-          <h2>Latest Analysis Result</h2>
+          <h2 style={{borderBottom: '2px solid #DBE2EF', paddingBottom: '10px'}}>Latest Analysis Result</h2>
           
           {globalImageUrl && (
             <img 
@@ -151,8 +162,8 @@ const FishId = () => {
 
           {/* SUSTAINABLE AI FEEDBACK UI */}
           {!feedbackGiven && (
-            <div style={{marginTop: '25px', padding: '15px', borderTop: '2px solid #eee'}}>
-              <h4>Help FishSight Learn! 🧠</h4>
+            <div style={{marginTop: '25px', padding: '15px', borderTop: '2px solid #DBE2EF'}}>
+              <h4 style={{color: '#112D4E'}}>Help FishSight Learn! 🧠</h4>
               <p>Was this prediction correct?</p>
               
               <div style={{display: 'flex', gap: '15px', marginTop: '10px'}}>
@@ -160,23 +171,23 @@ const FishId = () => {
                   onClick={() => submitFeedback(true)} 
                   style={{backgroundColor: '#4CAF50', color: 'white', padding: '12px 25px', border: 'none', borderRadius: '5px', fontSize: '1rem', cursor: 'pointer', position: 'relative', zIndex: 10}}
                 >
-                  ✅ Yes
+                  <FontAwesomeIcon icon={faCheck} style={{color: "white"}} /> Yes
                 </button>
                 <button 
                   onClick={() => submitFeedback(false)} 
                   style={{backgroundColor: '#f44336', color: 'white', padding: '12px 25px', border: 'none', borderRadius: '5px', fontSize: '1rem', cursor: 'pointer', position: 'relative', zIndex: 10}}
                 >
-                  ❌ No
+                  <FontAwesomeIcon icon={faX} style={{color: "white"}} /> No
                 </button>
               </div>
 
               {isCorrect === false && (
-                <div style={{marginTop: '15px', padding: '15px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #cbd5e1'}}>
-                  <label style={{color: '#1e293b', fontWeight: 'bold'}}>What species is this actually?</label><br/>
+                <div style={{marginTop: '15px', padding: '15px', backgroundColor: '#F9F7F7', borderRadius: '8px', border: '1px solid #DBE2EF'}}>
+                  <label style={{color: '#112D4E', fontWeight: 'bold'}}>What species is this actually?</label><br/>
                   <select 
                     value={correctLabel} 
                     onChange={(e) => setCorrectLabel(e.target.value)}
-                    style={{padding: '12px', margin: '12px 0', width: '100%', borderRadius: '6px', border: '1px solid #94a3b8'}}
+                    style={{padding: '12px', margin: '12px 0', width: '100%', borderRadius: '6px', border: '1px solid #DBE2EF', color: '#112D4E', backgroundColor: '#fff'}}
                   >
                     <option value="">Select the correct species...</option>
                     <option value="Angel Fish">Angel Fish</option>
@@ -196,8 +207,8 @@ const FishId = () => {
                     onClick={() => sendFeedbackToServer(correctLabel, false)}
                     disabled={!correctLabel}
                     style={{
-                        backgroundColor: !correctLabel ? '#94a3b8' : '#3F72AF', 
-                        color: 'white', 
+                        backgroundColor: !correctLabel ? '#DBE2EF' : '#3F72AF', 
+                        color: !correctLabel ? '#112D4E' : '#F9F7F7', 
                         padding: '14px 15px', 
                         border: 'none', 
                         borderRadius: '8px', 
@@ -218,7 +229,7 @@ const FishId = () => {
           )}
 
           {feedbackGiven && (
-            <div style={{marginTop: '20px', padding: '15px', backgroundColor: '#e8f5e9', borderRadius: '8px', color: '#166534', border: '1px solid #bbf7d0'}}>
+            <div style={{marginTop: '20px', padding: '15px', backgroundColor: '#DBE2EF', borderRadius: '8px', color: '#112D4E', border: '1px solid #3F72AF'}}>
               <strong>Thank you! 🐟</strong> Your feedback has been successfully sent to our AI database.
             </div>
           )}

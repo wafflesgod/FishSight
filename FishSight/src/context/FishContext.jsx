@@ -22,8 +22,9 @@ export const FishProvider = ({ children }) => {
 
   const analyzeImageBackground = async (imageFile) => {
     setGlobalImageUrl(URL.createObjectURL(imageFile));
+    setGlobalResult(null);
     const toastId = toast.loading("🐟 Analyzing fish in the background...");
-
+    
     try {
       const data = await FishService.identifyFish(imageFile);
       setGlobalResult(data);

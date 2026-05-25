@@ -4,12 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from passlib.context import CryptContext
 
 from database import database, user_helper
-from models import UserCreate, UserResponse
+from FishSight.src.backend.validation import UserCreate, UserResponse
 
 app = FastAPI()
 
 # Allow React to talk to this Backend
-origins = ["https://fishsight-1.onrender.com"]
+origins = ["https://fishsight-h6z5.onrender.com"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

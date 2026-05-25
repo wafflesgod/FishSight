@@ -27,9 +27,11 @@ const Header = () => {
             <span className="logo-text">FishSight</span>
         </Link>
 
-        {/* 2. Hamburger Menu Icon (Only visible on Mobile) */}
-        <div className="mobile-menu-icon" onClick={toggleMenu}>
-            {isMenuOpen ? "✖" : "☰"} 
+        {/* 2. ANIMATED Hamburger Menu Icon (Only visible on Mobile) */}
+        <div className={`mobile-menu-icon ${isMenuOpen ? 'active' : ''}`} onClick={toggleMenu}>
+            <span className="bar1"></span>
+            <span className="bar2"></span>
+            <span className="bar3"></span>
         </div>
 
         {/* 3. DESKTOP NAVIGATION (Hidden on Mobile) */}
