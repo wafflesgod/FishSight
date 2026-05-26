@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRobot, faCamera, faEarthAsia, faBrain } from "@fortawesome/free-solid-svg-icons";
+import { ForumService } from '../services/API';
 import './Homepage.css';
 
 // ==========================================
@@ -86,32 +87,19 @@ const HomePage = () => {
       const base64Image = reader.result;
       
       try {
-        // Direct fetch to your Main Server!
-        const response = await fetch('https://fishsight-h6z5.onrender.com/api/submit-data', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: currentUser,
-            image_data: base64Image,
-            timestamp: new Date().toISOString()
-          })
+        // Use centralized ForumService instead of direct fetch
+        await ForumService.submitTrainingImage({
+          username: currentUser,
+          image_data: base64Image,
+          timestamp: new Date().toISOString()
         });
 
-        if (response.ok) {
-          toast.update(toastId, { 
-            render: "Image submitted successfully! Thank you! 🐟", 
-            type: "success", 
-            isLoading: false, 
-            autoClose: 4000 
-          });
-        } else {
-          toast.update(toastId, { 
-            render: "Failed to submit image. Server might be busy.", 
-            type: "error", 
-            isLoading: false, 
-            autoClose: 4000 
-          });
-        }
+        toast.update(toastId, { 
+          render: "Image submitted successfully! Thank you! 🐟", 
+          type: "success", 
+          isLoading: false, 
+          autoClose: 4000 
+        });
       } catch (error) {
         console.error("Error submitting image:", error);
         toast.update(toastId, { 
