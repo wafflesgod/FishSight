@@ -1,0 +1,134 @@
+/* src/components/Footer.css */
+
+.site-footer {
+  background-color: #112D4E; /* Dark Blue base */
+  color: #DBE2EF; /* Soft light blue text */
+  padding: 4rem 5% 1.5rem 5%;
+  margin-top: auto; /* Pushes the footer to the bottom of the page */
+  font-family: inherit;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-bottom: 1px solid rgba(219, 226, 239, 0.15); /* Subtle divider line */
+  padding-bottom: 3rem;
+}
+
+/* --- COLUMN 1: Brand & Intro --- */
+.footer-brand {
+  flex: 2;
+  min-width: 280px;
+}
+
+.footer-brand h3 {
+  color: #F9F7F7;
+  font-size: 1.8rem;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-brand p {
+  line-height: 1.6;
+  font-size: 0.95rem;
+  max-width: 400px;
+  margin: 0;
+}
+
+/* --- COLUMN 2: Quick Links --- */
+.footer-links {
+  flex: 1;
+  min-width: 150px;
+}
+
+.footer-links h4, .footer-support h4 {
+  color: #F9F7F7;
+  font-size: 1.2rem;
+  margin: 0 0 1.2rem 0;
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.footer-links a {
+  color: #DBE2EF;
+  text-decoration: none;
+  transition: color 0.2s, padding-left 0.2s;
+}
+
+.footer-links a:hover {
+  color: #3F72AF; /* Primary Blue hover */
+  padding-left: 5px; /* Tiny slide effect on hover */
+}
+
+/* --- COLUMN 3: Support / Coffee --- */
+.footer-support {
+  flex: 1;
+  min-width: 250px;
+}
+
+.footer-support p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.btn-coffee {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #f59e0b; /* Warm coffee yellow/orange */
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-coffee:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(245, 158, 11, 0.4);
+}
+
+/* --- BOTTOM COPYRIGHT --- */
+.footer-bottom {
+  text-align: center;
+  padding-top: 1.5rem;
+  font-size: 0.85rem;
+  color: rgba(219, 226, 239, 0.6);
+}
+
+.footer-bottom p {
+  margin: 0;
+}
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 2rem;
+  }
+  
+  .footer-brand h3 {
+    justify-content: center;
+  }
+  
+  .footer-brand p {
+    margin: 0 auto;
+  }
+}
