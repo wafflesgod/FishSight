@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRobot, faCamera, faEarthAsia, faBrain } from "@fortawesome/free-solid-svg-icons";
 import './Homepage.css';
@@ -75,6 +76,8 @@ const HomePage = () => {
     if (!file) return;
 
     const currentUser = localStorage.getItem('username') || 'Anonymous';
+
+    const toastId = toast.loading("Uploading image data...");
     
     // Convert image to Base64 String
     const reader = new FileReader();
@@ -95,13 +98,28 @@ const HomePage = () => {
         });
 
         if (response.ok) {
-          alert("Image submitted successfully! Thank you for contributing to FishSight 2.0.");
+          toast.update(toastId, { 
+            render: "Image submitted successfully! Thank you! 🐟", 
+            type: "success", 
+            isLoading: false, 
+            autoClose: 4000 
+          });
         } else {
-          alert("Failed to submit image. Server might be busy.");
+          toast.update(toastId, { 
+            render: "Failed to submit image. Server might be busy.", 
+            type: "error", 
+            isLoading: false, 
+            autoClose: 4000 
+          });
         }
       } catch (error) {
         console.error("Error submitting image:", error);
-        alert("Failed to submit image. Is the Python server running?");
+        toast.update(toastId, { 
+            render: "Failed to submit image. Is Python running?", 
+            type: "error", 
+            isLoading: false, 
+            autoClose: 4000 
+        });
       }
     };
   };

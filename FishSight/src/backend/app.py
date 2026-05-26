@@ -165,8 +165,7 @@ def submit_training_data():
         db.community_images.insert_one({
             "Username": username,
             "ImageData": image_data,
-            "Timestamp": timestamp,
-            "Status": "Pending Review" 
+            "Timestamp": timestamp
         })
 
         return jsonify({"message": "Image submitted successfully"}), 201
