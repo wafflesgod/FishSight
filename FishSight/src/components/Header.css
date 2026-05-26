@@ -6,9 +6,12 @@
 }
 
 .navbar {
-    position: sticky;
+    position: fixed; /* 🚨 CHANGED: Forces the header to lock to the camera viewport */
     top: 0;
-    z-index: 1000; 
+    left: 0;
+    width: 100vw; /* Ensures it stretches all the way across */
+    box-sizing: border-box; /* Prevents padding from breaking the width */
+    z-index: 9999; /* 🚨 BUMPED UP: Ensures it floats above the new 3D animations */
     display: flex;
     justify-content: space-between;
     align-items: center;

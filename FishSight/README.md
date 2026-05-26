@@ -15,4 +15,4 @@ You need to update the information into **fish_info.py**, then run it, it will u
 Then you shall remove the information from the code, or leave it until next time
 
 # Fish Image Database #
-After a period of time or you can check the database for about 100 of images, you can harvest the data by using **harvest_data.py** to collect the images, the python code will download the images into your local, in a file call *retraining_dataset*
+After a period of time or you can check the database for about 100 of images, you can harvest the data by using **harvest_data.py** to collect the images, the python code will download the images into your local, in a file call ***retraining_dataset***

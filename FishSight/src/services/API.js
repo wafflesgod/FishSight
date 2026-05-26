@@ -103,6 +103,8 @@ export const ForumService = {
   toggleLike: (postId, userData) => apiRequest(MAIN_API_URL, `/api/forum/${postId}/like`, "POST", userData),
   deletePost: (postId, userData) => apiRequest(MAIN_API_URL, `/api/forum/${postId}`, "DELETE", userData),
   summarizePost: (postId) => apiRequest(MAIN_API_URL, `/api/forum/${postId}/summarize`, "GET"),
+  // main page collect fish image for training 
+  submitTrainingImage: (data) => apiRequest(MAIN_API_URL, "/api/submit-data", "POST", data),
 };
 
 // ==========================================

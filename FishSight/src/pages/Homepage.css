@@ -1,76 +1,402 @@
 /* src/pages/HomePage.css */
+
+/* KILLS HORIZONTAL SCROLL BUGS */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+}
+
 .home-container {
+  background-color: #F9F7F7; 
+  min-height: 100vh;
+  margin: -20px;
+  width: calc(100% + 40px);
+}
+
+/* ========================================= */
+/* THE SEAMLESS WRAPPER (Slides 1, 2 & 3)    */
+/* ========================================= */
+.top-sections-wrapper {
+  background: linear-gradient(to bottom, #0c0d13 0%, #0d1d31 35%, #112D4E 65%, #DBE2EF 85%, #F9F7F7 100%);
+  position: relative;
+  width: 100%;
+  overflow: hidden; 
+}
+
+/* ========================================= */
+/* BACKGROUND EFFECTS                        */
+/* ========================================= */
+.stars {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  transform: rotate(-45deg); z-index: 1; pointer-events: none; 
+}
+
+.star {
+  --star-color: #DBE2EF; 
+  --star-tail-height: 2px;
+  --star-width: calc(var(--star-tail-length) / 6);
+  --tail-fade-duration: var(--fall-duration);
+  position: absolute; top: var(--top-offset); left: 0;
+  width: var(--star-tail-length); height: var(--star-tail-height);
+  color: var(--star-color);
+  background: linear-gradient(45deg, currentColor, transparent);
+  border-radius: 50%; filter: drop-shadow(0 0 6px currentColor);
+  transform: translate3d(104em, 0, 0);
+  animation: fall var(--fall-duration) var(--fall-delay) linear infinite, tail-fade var(--tail-fade-duration) var(--fall-delay) ease-out infinite;
+}
+
+.star::before, .star::after {
+  position: absolute; content: ''; top: 0; left: calc(var(--star-width) / -2);
+  width: var(--star-width); height: 100%;
+  background: linear-gradient(45deg, transparent, currentColor, transparent);
+  border-radius: inherit; animation: blink 2s linear infinite;
+}
+.star::before { transform: rotate(45deg); }
+.star::after { transform: rotate(-45deg); }
+
+@keyframes fall { to { transform: translate3d(-30em, 0, 0); } }
+@keyframes tail-fade {
+  0%, 50% { width: var(--star-tail-length); opacity: 1; }
+  70%, 80% { width: 0; opacity: 0.4; }
+  100% { width: 0; opacity: 0; }
+}
+@keyframes blink { 50% { opacity: 0.6; } }
+
+.particles-container {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 2; pointer-events: none;
+}
+
+.particle {
+  position: absolute; background: #fff; border-radius: 50%; opacity: 0; pointer-events: none;
+  box-shadow: 0 0 10px #DBE2EF; transform: translate(-50%, -50%); 
+}
+
+/* ========================================= */
+/* 1. HERO SECTION                           */
+/* ========================================= */
+.hero-wrapper {
+  background: transparent;
+  padding: 6rem 5% 4rem 5%;
+  display: flex; justify-content: center; align-items: center;
+  min-height: 85vh;
+}
+
+.hero-content-flex {
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: 1400px; width: 100%; gap: 4rem; z-index: 10; 
+}
+
+.hero-text-block { flex: 1; text-align: left; }
+.hero-title {
+  font-size: 3.8rem; font-weight: 900; color: #F9F7F7; 
+  line-height: 1.15; margin-bottom: 1.5rem; text-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+}
+.hero-subtitle {
+  font-size: 1.25rem; color: #DBE2EF; margin-bottom: 2.5rem; line-height: 1.6; max-width: 90%;
+}
+.hero-buttons { display: flex; gap: 1.5rem; margin-bottom: 3.5rem; }
+
+.btn-primary, .btn-secondary {
+  padding: 14px 32px; border-radius: 30px; font-size: 1.1rem;
+  font-weight: bold; text-decoration: none; transition: all 0.3s ease; cursor: pointer;
+}
+.btn-primary {
+  background-color: #3F72AF; color: #F9F7F7; border: 2px solid #3F72AF; box-shadow: 0 4px 14px rgba(63, 114, 175, 0.4);
+}
+.btn-primary:hover {
+  background-color: #F9F7F7; color: #112D4E; border-color: #F9F7F7; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249, 247, 247, 0.3);
+}
+.btn-secondary { background-color: transparent; color: #DBE2EF; border: 2px solid #DBE2EF; }
+.btn-secondary:hover { background-color: rgba(219, 226, 239, 0.1); color: #F9F7F7; border-color: #F9F7F7; transform: translateY(-2px); }
+
+.hero-stats { display: flex; align-items: center; gap: 2rem; }
+.stat-item { display: flex; flex-direction: column; }
+.stat-number { font-size: 2.2rem; font-weight: 900; color: #F9F7F7; }
+.stat-label { font-size: 0.9rem; color: #DBE2EF; font-weight: 500; }
+.stat-divider { width: 2px; height: 40px; background-color: rgba(219, 226, 239, 0.2); }
+
+.hero-visual { flex: 1; display: flex; justify-content: center; position: relative; }
+.visual-box {
+  position: relative; border-radius: 20px; padding: 10px;
+  background: rgba(219, 226, 239, 0.1); border: 1px solid rgba(219, 226, 239, 0.2);
+  backdrop-filter: blur(10px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); max-width: 100%;
+}
+.tech-badge {
+  position: absolute; top: -15px; right: -15px; background: #3F72AF;
+  color: #F9F7F7; font-weight: bold; font-size: 0.9rem; padding: 8px 16px;
+  border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10; border: 1px solid #DBE2EF;
+}
+.demo-gif { width: 100%; border-radius: 12px; display: block; }
+
+/* ========================================= */
+/* 2. FISH CAROUSEL SECTION                  */
+/* ========================================= */
+.carousel-section {
+  background: transparent;
+  padding: 4rem 0 4rem 0; 
+  text-align: center;
+  position: relative;
+  z-index: 10; 
+}
+
+.carousel-header { color: #F9F7F7; margin-bottom: 3rem; padding: 0 5%; }
+.carousel-header h2 { font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+.carousel-header p { font-size: 1.1rem; color: #DBE2EF; max-width: 600px; margin: 0 auto; }
+
+.carousel-track-container {
+  width: 100%;
+  overflow-x: auto; 
+  padding: 20px 0;
+  scrollbar-width: none; 
+}
+.carousel-track-container::-webkit-scrollbar { display: none; }
+
+.carousel-track {
+  display: flex; gap: 2rem; width: max-content; padding: 0 5vw; 
+}
+
+.carousel-card {
+  position: relative; width: 320px; height: 220px; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4); transition: transform 0.3s ease;
+  cursor: grab; background-color: #112D4E; border: 1px solid rgba(255,255,255,0.1);
+}
+.carousel-card:active { cursor: grabbing; }
+.carousel-card:hover { transform: scale(1.05); }
+
+.image-fallback {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  color: #F9F7F7; font-size: 0.9rem; text-align: center; z-index: 0;
+}
+.carousel-img {
+  position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover;
+}
+
+.carousel-card-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(17, 45, 78, 0.8); display: flex; flex-direction: column; justify-content: center; align-items: center;
+  opacity: 0; transition: opacity 0.3s ease; z-index: 2; 
+}
+.carousel-card:hover .carousel-card-overlay { opacity: 1; }
+
+.carousel-card-overlay h3 { color: #F9F7F7; font-size: 1.5rem; margin-bottom: 1rem; }
+.btn-view-info {
+  background-color: #3F72AF; color: #F9F7F7; padding: 10px 24px; border-radius: 20px; font-weight: bold;
+  text-decoration: none; border: 1px solid #DBE2EF; transition: all 0.2s; cursor: pointer;
+}
+.btn-view-info:hover { background-color: #F9F7F7; color: #112D4E; }
+
+/* ========================================= */
+/* 3. FEATURES SECTION (3D TILT CARDS)       */
+/* ========================================= */
+.features-section {
+  background: transparent;
+  padding: 4rem 5% 6rem 5%;
+  position: relative;
+  z-index: 10;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.features-header {
+  text-align: center;
+  margin-bottom: 4rem;
+  /* 🚨 FIX: Made text purely white with a deep shadow so it's always readable */
+  color: #F9F7F7; 
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.features-header h2 {
+  font-size: 2.8rem;
+  margin-bottom: 1rem;
+}
+
+.features-header p {
+  font-size: 1.15rem;
+  color: #DBE2EF;
+  max-width: 600px;
+  margin: 0 auto;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+/* Perfect 2x2 Grid for the features */
+.features-grid-3d {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3rem;
+  padding: 0 2rem;
+}
+
+.tilt-card-wrapper {
+  /* Snappy transform transition removes jitter when moving */
+  transition: transform 0.15s ease-out;
+  transform-style: preserve-3d;
+  background: #F9F7F7;
+  border-radius: 20px;
+  border: 1px solid #DBE2EF;
+  /* Soft glow */
+  box-shadow: 0 10px 30px rgba(17, 45, 78, 0.15), inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+  cursor: crosshair;
+}
+
+.tilt-card-inner {
+  /* This pushes ALL the content out from the background */
+  transform: translateZ(50px);
+  transform-style: preserve-3d;
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 
-/* --- HERO SECTION --- */
-.hero-section {
-  background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%); /* Light Teal Gradient */
-  padding: 5rem 2rem;
-  color: #004d40;
+.tilt-icon {
+  font-size: 3rem;
+  color: #3F72AF; /* Primary Blue */
+  background: #DBE2EF; /* Light blue circle behind icon */
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 20px rgba(63, 114, 175, 0.2);
 }
 
-.hero-title {
-  font-size: 3.5rem;
-  margin-bottom: 1rem;
-  color: #00695C;
-}
-
-.hero-subtitle {
+.tilt-card-inner h3 {
+  color: #112D4E;
   font-size: 1.5rem;
-  max-width: 600px;
-  margin: 0 auto 2rem auto;
-  color: #374151;
+  margin-bottom: 1rem;
 }
 
-.cta-button {
-  background-color: #00897B;
-  color: white;
-  padding: 15px 40px;
-  font-size: 1.2rem;
+.tilt-card-inner p {
+  color: #3F72AF;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ========================================= */
+/* 4. CONTRIBUTE SECTION (SLIDE 4)           */
+/* ========================================= */
+.contribute-section {
+  background-color: #F9F7F7;
+  padding: 6rem 5%;
+  position: relative;
+  z-index: 10;
+}
+
+.contribute-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 24px;
+  padding: 4rem;
+  box-shadow: 0 20px 40px rgba(17, 45, 78, 0.08);
+  border: 1px solid #DBE2EF;
+  gap: 4rem;
+}
+
+.contribute-text {
+  flex: 1;
+  text-align: left;
+}
+
+.contribute-text h2 {
+  font-size: 2.5rem;
+  color: #112D4E;
+  margin-bottom: 1rem;
+}
+
+.contribute-text p {
+  font-size: 1.1rem;
+  color: #3F72AF;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.contribute-perks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.contribute-perks li {
+  font-size: 1.1rem;
+  color: #112D4E;
   font-weight: bold;
-  border-radius: 50px;
-  text-decoration: none;
-  transition: transform 0.2s, background-color 0.2s;
-  display: inline-block;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.cta-button:hover {
-  background-color: #004d40;
-  transform: translateY(-3px); /* Slight lift effect */
-  box-shadow: 0 4px 10px rgba(0, 137, 123, 0.3);
-}
-
-/* --- FEATURES SECTION --- */
-.features-section {
-  padding: 4rem 2rem;
-  background-color: white;
-}
-
-.features-grid {
+.contribute-action {
+  flex: 1;
   display: flex;
   justify-content: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-  margin-top: 3rem;
 }
 
-.feature-card {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  border: 1px solid #e5e7eb;
-  width: 300px;
-  transition: transform 0.3s;
+.mock-upload-box {
+  width: 100%;
+  max-width: 400px;
+  border: 3px dashed #DBE2EF;
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  text-align: center;
+  background-color: #F9F7F7;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-.feature-card:hover {
+.mock-upload-box:hover {
+  border-color: #3F72AF;
+  background-color: #DBE2EF;
   transform: translateY(-5px);
-  border-color: #00897B;
 }
 
-.feature-icon {
+.upload-icon {
   font-size: 3rem;
+  color: #3F72AF;
   margin-bottom: 1rem;
+}
+
+.mock-upload-box h3 {
+  color: #112D4E;
+  margin-bottom: 0.5rem;
+}
+
+.mock-upload-box p {
+  color: #3F72AF;
+  margin-bottom: 1.5rem;
+}
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 968px) {
+  .hero-content-flex { flex-direction: column; text-align: center; gap: 3rem; }
+  .hero-text-block { text-align: center; }
+  .hero-subtitle { margin: 0 auto 2rem auto; }
+  .hero-buttons, .hero-stats { justify-content: center; }
+  .hero-title { font-size: 2.8rem; }
+  
+  /* Stack 3D Cards */
+  .features-grid-3d {
+    grid-template-columns: 1fr;
+    padding: 0;
+  }
+  
+  /* Stack Contribute Section */
+  .contribute-content {
+    flex-direction: column;
+    padding: 2rem;
+    text-align: center;
+  }
+  .contribute-text { text-align: center; }
+  .contribute-perks li { justify-content: center; }
 }
