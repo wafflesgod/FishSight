@@ -380,15 +380,27 @@ html, body {
 
 /* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 968px) {
-    .hero-wrapper {
-    padding-top: 130px; 
+   .hero-wrapper {
+    padding: 80px 30px 0 30px;
   }
 
-  .hero-content-flex { flex-direction: column; text-align: center; gap: 3rem; }
+  .carousel-section {
+    padding: 1rem 20px 2rem 20px;
+  }
+
+  .features-section {
+    padding: 2rem 20px;
+  }
+
+  .contribute-section {
+    padding: 2rem 20px;
+  }
+
+  .hero-title { font-size: 2.2rem; }
+  .hero-content-flex { flex-direction: column; text-align: center; gap: 1.5rem; }
   .hero-text-block { text-align: center; }
   .hero-subtitle { margin: 0 auto 2rem auto; }
   .hero-buttons, .hero-stats { justify-content: center; }
-  .hero-title { font-size: 2.8rem; }
 
   .hero-buttons { 
     justify-content: center; 
@@ -407,7 +419,14 @@ html, body {
   .features-grid-3d {
     grid-template-columns: 1fr;
     padding: 0;
+    gap: 1rem;
   }
+
+  .tilt-card-inner { padding: 1.5rem; }
+  .tilt-icon { margin-bottom: 10px; width: 60px; height: 60px; font-size: 2rem; }
+  
+  .contribute-content { padding: 1.5rem; gap: 1rem; }
+  .contribute-text h2 { font-size: 1.8rem; }
   
   /* Stack Contribute Section */
   .contribute-content {

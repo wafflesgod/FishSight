@@ -22,7 +22,7 @@ const Header = () => {
     return (
         <nav className="navbar">
         {/* 1. Logo (Left Side) */}
-        <Link to="/" className="logo-link">
+        <Link to="/" className="logo-link" onClick={toggleMenu}>
             <img src={logoImage} alt="FishSight Logo" className="logo-img" />
             <span className="logo-text">FishSight</span>
         </Link>

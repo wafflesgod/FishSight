@@ -175,7 +175,7 @@
 @media (max-width: 768px) {
     /* Shrink the container padding so it fits the screen */
   .fish-info-container {
-        padding: 1rem; 
+        padding: 2rem 1rem 1rem 1rem; 
     }
 
     /* Force the grid to be exactly 1 column wide on phones */

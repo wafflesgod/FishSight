@@ -766,7 +766,7 @@
 /* ========================================= */
 @media (max-width: 768px) {
   .forum-container {
-    padding: 1rem; /* Shrinks the giant 2rem desktop padding */
+    padding: 2rem 1rem 1rem 1rem; /* Shrinks the giant 2rem desktop padding */
   }
 
   .forum-search-bar {
