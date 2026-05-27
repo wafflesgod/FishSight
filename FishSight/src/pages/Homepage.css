@@ -11,7 +11,7 @@ html, body {
 .home-container {
   background-color: #F9F7F7; 
   min-height: 100vh;
-  margin: -20px;
+  margin: -100px -20px -20px -20px;
   width: calc(100% + 40px);
 }
 
@@ -23,6 +23,7 @@ html, body {
   position: relative;
   width: 100%;
   overflow: hidden; 
+  padding-top: 80px;
 }
 
 /* ========================================= */
@@ -79,7 +80,7 @@ html, body {
 /* ========================================= */
 .hero-wrapper {
   background: transparent;
-  padding: 6rem 5% 4rem 5%;
+  padding: 1rem 5% 2rem 5%;
   display: flex; justify-content: center; align-items: center;
   min-height: 85vh;
 }
@@ -136,7 +137,7 @@ html, body {
 /* ========================================= */
 .carousel-section {
   background: transparent;
-  padding: 4rem 0 4rem 0; 
+  padding: 1rem 0 4rem 0; 
   text-align: center;
   position: relative;
   z-index: 10; 

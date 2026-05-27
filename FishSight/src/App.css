@@ -6,5 +6,5 @@
 
 .main-content {
   flex: 1; /* Pushes the footer down */
-  padding: 20px;
+    padding: 40px 20px 20px 20px;
 }

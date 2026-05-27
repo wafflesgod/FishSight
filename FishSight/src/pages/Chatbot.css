@@ -1,57 +1,168 @@
+/* src/pages/Chatbot.css */
+
 .chatbot-page {
   display: flex;
   justify-content: center;
+  gap: 20px;
   padding: 20px;
-  height: 80vh; /* Takes up most of the screen */
+  /* Adjust height to fit perfectly under your new 80px header */
+  height: calc(100vh - 80px - 40px); 
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
+/* ========================================= */
+/* SIDEBAR (DESKTOP)                         */
+/* ========================================= */
+.chat-sidebar {
+  width: 280px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid #DBE2EF;
+  transition: transform 0.3s ease-in-out;
+  z-index: 100;
+}
+
+.btn-new-chat {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background-color: #3F72AF;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background-color 0.2s;
+}
+
+.btn-new-chat:hover {
+  background-color: #112D4E;
+}
+
+.chat-sidebar h4 {
+  margin: 0 0 10px 5px;
+  color: #112D4E;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.session-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.session-item {
+  padding: 12px 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  background-color: transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  transition: background-color 0.2s;
+  color: #112D4E;
+}
+
+.session-item:hover {
+  background-color: #DBE2EF;
+}
+
+.session-item.active {
+  background-color: #DBE2EF;
+  font-weight: bold;
+}
+
+.session-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  flex: 1;
+  padding-right: 10px;
+}
+
+.btn-delete-chat {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ef4444;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.session-item:hover .btn-delete-chat {
+  opacity: 1;
+}
+
+.no-chats {
+  text-align: center;
+  color: #94a3b8;
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+/* ========================================= */
+/* CHAT WINDOW                               */
+/* ========================================= */
 .chat-window {
-  width: 100%;
-  max-width: 600px;
+  flex: 1;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid #ddd;
+  border: 1px solid #DBE2EF;
+}
+
+/* Hidden on Desktop! */
+.chat-mobile-header {
+  display: none; 
 }
 
 .messages-list {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  background-color: #f9f9f9;
+  background-color: #F9F7F7;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .message-bubble {
   max-width: 80%;
-  padding: 10px 15px;
+  padding: 12px 18px;
   border-radius: 18px;
-  font-size: 15px;
-  line-height: 1.4;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 .message-bubble.user {
   align-self: flex-end;
-  background-color: #007bff;
+  background-color: #3F72AF;
   color: white;
   border-bottom-right-radius: 4px;
 }
 
 .message-bubble.bot {
   align-self: flex-start;
-  background-color: #e9ecef;
-  color: #333;
+  background-color: white;
+  color: #112D4E;
+  border: 1px solid #DBE2EF;
   border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .chat-input-area {
   padding: 15px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #DBE2EF;
   display: flex;
   gap: 10px;
   background: white;
@@ -59,22 +170,102 @@
 
 .chat-input-area input {
   flex: 1;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 20px;
+  padding: 12px 15px;
+  border: 1px solid #DBE2EF;
+  border-radius: 25px;
   outline: none;
+  font-size: 1rem;
+}
+
+.chat-input-area input:focus {
+  border-color: #3F72AF;
 }
 
 .chat-input-area button {
-  padding: 10px 20px;
-  background-color: #007bff;
+  padding: 10px 25px;
+  background-color: #3F72AF;
   color: white;
   border: none;
-  border-radius: 20px;
+  border-radius: 25px;
   cursor: pointer;
   font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.chat-input-area button:hover {
+  background-color: #112D4E;
 }
 
 .chat-input-area button:disabled {
-  background-color: #ccc;
+  background-color: #DBE2EF;
+  cursor: not-allowed;
+}
+
+/* ========================================= */
+/* MOBILE RESPONSIVENESS (The Sliding Drawer)*/
+/* ========================================= */
+.sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .chatbot-page {
+    padding: 10px;
+    height: calc(100vh - 80px - 20px);
+  }
+
+  /* Reveal the Mobile Header inside the chat window */
+  .chat-mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: #112D4E;
+    color: white;
+    font-weight: bold;
+  }
+
+  .chat-mobile-header button {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* The Dark Click-to-close Overlay */
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 80px; /* Sits right under the global header */
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 80px);
+    background: rgba(17, 45, 78, 0.6);
+    z-index: 90;
+  }
+
+  /* Transform Sidebar into a Drawer */
+  .chat-sidebar {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    height: calc(100vh - 80px);
+    width: 280px;
+    border-radius: 0;
+    border: none;
+    border-right: 1px solid #DBE2EF;
+    /* Hide it off-screen to the left by default */
+    transform: translateX(-100%); 
+    z-index: 100;
+  }
+
+  /* Slide it in when the state is True! */
+  .chat-sidebar.open {
+    transform: translateX(0);
+  }
 }
