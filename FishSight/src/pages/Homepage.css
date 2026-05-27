@@ -397,33 +397,32 @@ html, body {
   }
 
   .hero-title { font-size: 2.2rem; }
-  .hero-content-flex { flex-direction: column; text-align: center; gap: 1.5rem; }
+  .features-header h2, .carousel-header h2 { font-size: 1.8rem; }
+  .hero-content-flex { flex-direction: column; text-align: center; gap: 1rem; }
   .hero-text-block { text-align: center; }
-  .hero-subtitle { margin: 0 auto 2rem auto; }
-  .hero-buttons, .hero-stats { justify-content: center; }
+  .hero-subtitle { font-size: 1rem; margin-bottom: 1.5rem; }
+  .hero-buttons { justify-content: center; gap: 0.5rem; }
+  .hero-stats { justify-content: center; gap: 1rem; }
 
-  .hero-buttons { 
-    justify-content: center; 
-    gap: 1rem; 
-  }
   .btn-primary, .btn-secondary {
-    padding: 10px 24px;
-    font-size: 1rem;
+    padding: 8px 16px;
+    font-size: 0.9rem;
   }
 
   .hero-stats { justify-content: center; }
-  .stat-number { font-size: 1.8rem; }
-  .stat-label { font-size: 0.8rem; }
+  .stat-number { font-size: 1.4rem; }
+  .stat-label { font-size: 0.7rem; }
   
   /* Stack 3D Cards */
   .features-grid-3d {
-    grid-template-columns: 1fr;
-    padding: 0;
     gap: 1rem;
+    border-left: 4px solid #3F72AF; /* Left bar */
+    border-right: 4px solid #3F72AF; /* Right bar */
+    padding: 1rem;
   }
 
-  .tilt-card-inner { padding: 1.5rem; }
-  .tilt-icon { margin-bottom: 10px; width: 60px; height: 60px; font-size: 2rem; }
+  .tilt-card-inner { padding: 1rem; }
+  .tilt-icon { margin-bottom: 0.5rem; width: 50px; height: 50px; font-size: 1.5rem; }
   
   .contribute-content { padding: 1.5rem; gap: 1rem; }
   .contribute-text h2 { font-size: 1.8rem; }
