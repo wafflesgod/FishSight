@@ -210,9 +210,10 @@
 
 @media (max-width: 768px) {
   .chatbot-page {
-    padding: 10px;
-    margin-top: 35px;
-    height: calc(100vh - 80px - 20px);
+    height: 100svh;
+    padding: 0;
+    margin-top: 0;
+    flex-direction: column;
   }
 
   /* Reveal the Mobile Header inside the chat window */
@@ -224,6 +225,7 @@
     background-color: #112D4E;
     color: white;
     font-weight: bold;
+    height: 60px;
   }
 
   .chat-mobile-header button {
@@ -253,20 +255,39 @@
   /* Transform Sidebar into a Drawer */
   .chat-sidebar {
     position: fixed;
-    top: 80px;
+    top: 0;
     left: 0;
-    height: calc(100vh - 80px);
+    height: 100svh;
     width: 280px;
     border-radius: 0;
     border: none;
     border-right: 1px solid #DBE2EF;
     /* Hide it off-screen to the left by default */
     transform: translateX(-100%); 
-    z-index: 100;
+    z-index: 10000;
+    background: white;
   }
 
   /* Slide it in when the state is True! */
   .chat-sidebar.open {
     transform: translateX(0);
+  }
+
+  /* The Chat Window takes full space */
+  .chat-window {
+    width: 100% !important;
+    height: 100svh;
+    border-radius: 0;
+    border: none;
+  }
+
+  /* Force the input area to be absolutely visible */
+  .chat-input-area {
+    padding: 10px;
+    padding-bottom: 20px; /* Extra padding for phone home bar */
+    border-top: 1px solid #DBE2EF;
+    background: white;
+    position: sticky;
+    bottom: 0;
   }
 }
