@@ -17,12 +17,18 @@ const Chatbot = () => {
   const username = localStorage.getItem('username') || 'Guest';
   const { chatMessages, setChatMessages } = useFish();
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
   useEffect(scrollToBottom, [chatMessages]);
 
+  const handleAutoResize = (e) => {
+    e.target.style.height = 'auto'; 
+    e.target.style.height = `${e.target.scrollHeight + 2}px`; 
+  };
+  
   useEffect(() => {
     fetchHistory();
   }, []);
@@ -162,11 +168,20 @@ const Chatbot = () => {
         </div>
 
         <div className="chat-input-area">
-          <input
-            type="text"
+          <textarea
+            ref={inputRef}
+            rows="1" // Starts as 1 line
             value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            onChange={(e) => {
+              setInput(e.target.value);
+              handleAutoResize(e);
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) { // Prevents send on Shift+Enter
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
             placeholder="Ask about Neon Tetras..."
             disabled={loading}
           />
