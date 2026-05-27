@@ -380,6 +380,10 @@ html, body {
 
 /* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 968px) {
+    .hero-wrapper {
+    padding-top: 130px; 
+  }
+
   .hero-content-flex { flex-direction: column; text-align: center; gap: 3rem; }
   .hero-text-block { text-align: center; }
   .hero-subtitle { margin: 0 auto 2rem auto; }
