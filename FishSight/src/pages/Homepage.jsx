@@ -77,7 +77,6 @@ const HomePage = () => {
     if (!file) return;
 
     const currentUser = localStorage.getItem('username') || 'Anonymous';
-
     const toastId = toast.loading("Uploading image data...");
     
     // Convert image to Base64 String
