@@ -7,7 +7,7 @@
   padding: 20px;
   /* Adjust height to fit perfectly under your new 80px header */
   height: calc(100vh - 80px - 40px); 
-  max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -211,8 +211,10 @@
 @media (max-width: 768px) {
   .chatbot-page {
     height: 100svh;
+    width: 100%;
     padding: 0;
     margin-top: 0;
+    gap: 0;
     flex-direction: column;
   }
 
