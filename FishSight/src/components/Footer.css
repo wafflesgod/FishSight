@@ -118,6 +118,90 @@
   margin: 0;
 }
 
+/* ========================================= */
+/* ACADEMIC FAKE-OUT MODAL                   */
+/* ========================================= */
+
+.donation-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  /* Dark blue semi-transparent background with a blur effect */
+  background: rgba(17, 45, 78, 0.7); 
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Extremely high z-index to sit above the fixed header! */
+  z-index: 10000; 
+}
+
+.donation-modal-content {
+  background: #FFFFFF;
+  padding: 3rem;
+  border-radius: 20px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  border: 1px solid #DBE2EF;
+  /* Smooth pop-up animation */
+  animation: modalPopUp 0.3s ease-out;
+}
+
+@keyframes modalPopUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.close-modal-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-modal-btn:hover {
+  color: #ef4444; /* Turns red on hover */
+}
+
+.modal-icon-large {
+  font-size: 4rem;
+  color: #f59e0b; /* Coffee orange */
+  margin-bottom: 1.5rem;
+}
+
+.donation-modal-content h3 {
+  color: #112D4E;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.donation-modal-content p {
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  font-size: 1.05rem;
+}
+
+.modal-highlight {
+  background: #F9F7F7;
+  padding: 15px;
+  border-radius: 10px;
+  border-left: 4px solid #3F72AF;
+  font-style: italic;
+  color: #3F72AF !important;
+  font-weight: 500;
+}
+
 /* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 768px) {
   .footer-content {
