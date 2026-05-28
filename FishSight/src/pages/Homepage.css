@@ -416,9 +416,10 @@ html, body {
   /* Stack 3D Cards */
   .features-grid-3d {
     gap: 1rem;
-    border-left: 4px solid #3F72AF; /* Left bar */
-    border-right: 4px solid #3F72AF; /* Right bar */
-    padding: 1rem;
+    padding: 0 10px; /* Small safe padding so cards don't touch screen edges */
+    border: none;    /* Remove the side bars */
+    width: 100%;     /* Ensure it takes full width */
+    box-sizing: border-box; /* Prevent padding from causing overflow */
   }
 
   .tilt-card-inner { padding: 1rem; }
