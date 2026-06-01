@@ -4,14 +4,15 @@ import numpy as np
 from PIL import Image
 import io
 import gc
-import threading # 🚨 NEW: Prevents concurrent requests from crashing the model
+import threading
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-import tensorflow as tf
-from tf_keras.applications.resnet50 import preprocess_input
+
+# 🚨 NEW: Lightweight TFLite import (Replaces heavy TensorFlow!)
+import tflite_runtime.interpreter as tflite 
 
 load_dotenv()
 
@@ -31,20 +32,19 @@ FISH_CLASSES = [
 ]
 
 # ==========================================
-# 🚨 GLOBAL MODEL LOAD (ONLY HAPPENS ONCE!)
+# 🚨 GLOBAL MODEL LOAD
 # ==========================================
 print("Loading TFLite Model into memory...")
 script_dir = os.path.dirname(os.path.abspath(__file__))
 tflite_model_path = os.path.join(script_dir, "resnet50.tflite")
 
-# Load it here so it reserves a strict, fixed amount of RAM forever
-interpreter = tf.lite.Interpreter(model_path=tflite_model_path)
+# Use the lightweight interpreter
+interpreter = tflite.Interpreter(model_path=tflite_model_path)
 interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
-# Create a lock so two people clicking "Upload" at the exact same millisecond won't crash it
 model_lock = threading.Lock()
 print("✅ Vision Model loaded successfully!")
 
@@ -70,16 +70,24 @@ def predict():
 
         img_array = np.array(img, dtype=np.float32)
         img_array = np.expand_dims(img_array, axis=0)
-        img_array = preprocess_input(img_array)
+
+        # 🚨 NEW: MANUAL RESNET50 PREPROCESSING (Replaces tf_keras overhead)
+        # 1. Convert RGB to BGR and copy the array
+        img_array = img_array[..., ::-1].copy()
+        # 2. Subtract ImageNet mean pixel values
+        img_array[..., 0] -= 103.939
+        img_array[..., 1] -= 116.779
+        img_array[..., 2] -= 123.68
 
         # --- RUN PREDICTION (SAFELY LOCKED) ---
-        with model_lock: # 🚨 NEW: Makes sure only one image is processed at a time!
+        with model_lock: 
             interpreter.set_tensor(input_details[0]['index'], img_array)
             interpreter.invoke()
-            predictions_array = interpreter.get_tensor(output_details[0]['index'])
+            # 🚨 NEW: .copy() releases the internal memory pointer immediately!
+            predictions_array = interpreter.get_tensor(output_details[0]['index']).copy()
 
         # --- CALCULATE RESULT ---
-        predicted_class_index = np.argmax(predictions_array[0])
+        predicted_class_index = int(np.argmax(predictions_array[0]))
         confidence_score = float(np.max(predictions_array[0])) * 100
         predicted_species = FISH_CLASSES[predicted_class_index]
 
@@ -105,9 +113,7 @@ def predict():
         return jsonify({"error": str(e)}), 500
     
     finally:
-        # 🚨 THE FINAL MEMORY WIPE
-        # Putting it in the 'finally' block ensures that even if an image causes an error,
-        # the server will ALWAYS empty the trash and wipe the image array from RAM.
+        # Guarantee the image array is wiped from RAM
         gc.collect()
 
 if __name__ == '__main__':

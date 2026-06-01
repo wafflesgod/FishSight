@@ -7,11 +7,12 @@ gunicorn==21.2.0
 pymongo==4.6.1
 
 # Deep Learning & Computer Vision
-tensorflow-cpu==2.15.0
+#tensorflow-cpu==2.15.0
 tf-keras==2.15.0
+tflite-runtime==2.14.0
 numpy==1.26.4
 Pillow==10.2.0
-opencv-python-headless==4.9.0.80
+#opencv-python-headless==4.9.0.80
 
 # Utilities
 python-dotenv==1.0.1
