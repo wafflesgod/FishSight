@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 import io
 import gc
+import threading # 🚨 NEW: Prevents concurrent requests from crashing the model
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -29,6 +30,25 @@ FISH_CLASSES = [
     "Neon Tetra", "Platy Fish", "Rohu", "Zebra Fish"          
 ]
 
+# ==========================================
+# 🚨 GLOBAL MODEL LOAD (ONLY HAPPENS ONCE!)
+# ==========================================
+print("Loading TFLite Model into memory...")
+script_dir = os.path.dirname(os.path.abspath(__file__))
+tflite_model_path = os.path.join(script_dir, "resnet50.tflite")
+
+# Load it here so it reserves a strict, fixed amount of RAM forever
+interpreter = tf.lite.Interpreter(model_path=tflite_model_path)
+interpreter.allocate_tensors()
+
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
+
+# Create a lock so two people clicking "Upload" at the exact same millisecond won't crash it
+model_lock = threading.Lock()
+print("✅ Vision Model loaded successfully!")
+
+
 @app.route('/', methods=['GET'])
 def health_check():
     return jsonify({"status": "Vision Server is Running!"}), 200
@@ -43,17 +63,7 @@ def predict():
         return jsonify({"error": "No selected file"}), 400
     
     try:
-        # --- 1. LOAD TFLITE MODEL JUST IN TIME ---
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        tflite_model_path = os.path.join(script_dir, "resnet50.tflite")
-        
-        interpreter = tf.lite.Interpreter(model_path=tflite_model_path)
-        interpreter.allocate_tensors()
-        
-        input_details = interpreter.get_input_details()
-        output_details = interpreter.get_output_details()
-
-        # --- 2. PROCESS IMAGE ---
+        # --- PROCESS IMAGE ---
         image_bytes = file.read()
         img = Image.open(io.BytesIO(image_bytes)).convert('RGB')
         img = img.resize((224, 224))
@@ -62,21 +72,18 @@ def predict():
         img_array = np.expand_dims(img_array, axis=0)
         img_array = preprocess_input(img_array)
 
-        # --- 3. RUN PREDICTION ---
-        interpreter.set_tensor(input_details[0]['index'], img_array)
-        interpreter.invoke()
-        predictions_array = interpreter.get_tensor(output_details[0]['index'])
+        # --- RUN PREDICTION (SAFELY LOCKED) ---
+        with model_lock: # 🚨 NEW: Makes sure only one image is processed at a time!
+            interpreter.set_tensor(input_details[0]['index'], img_array)
+            interpreter.invoke()
+            predictions_array = interpreter.get_tensor(output_details[0]['index'])
 
-        # --- 4. CLEAR RAM ---
-        del interpreter
-        gc.collect()
-
-        # --- 5. CALCULATE RESULT ---
+        # --- CALCULATE RESULT ---
         predicted_class_index = np.argmax(predictions_array[0])
         confidence_score = float(np.max(predictions_array[0])) * 100
         predicted_species = FISH_CLASSES[predicted_class_index]
 
-        # --- 6. DATABASE QUERY ---
+        # --- DATABASE QUERY ---
         species_data = species_collection.find_one({"CommonName": predicted_species})
 
         if species_data:
@@ -96,6 +103,12 @@ def predict():
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+    
+    finally:
+        # 🚨 THE FINAL MEMORY WIPE
+        # Putting it in the 'finally' block ensures that even if an image causes an error,
+        # the server will ALWAYS empty the trash and wipe the image array from RAM.
+        gc.collect()
 
 if __name__ == '__main__':
-    app.run(port=5002, debug=True, use_reloader=False) # Port 5002 to avoid local conflicts
+    app.run(port=5002, debug=True, use_reloader=False)
