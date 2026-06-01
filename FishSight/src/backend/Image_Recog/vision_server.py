@@ -24,6 +24,7 @@ MONGO_URI = os.getenv("MONGO_URI")
 client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
 db = client.fishsight_db
 species_collection = db.fish_species
+feedback_collection = db.feedback_logs
 
 FISH_CLASSES = [
     "Angel Fish", "Cardinal Tetra", "Cherry Barb", "Common Carp",
@@ -115,6 +116,30 @@ def predict():
     finally:
         # Guarantee the image array is wiped from RAM
         gc.collect()
+
+@app.route('/feedback', methods=['POST'])
+def submit_feedback():
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        # Save the user's correction to MongoDB for future retraining cycles!
+        feedback_document = {
+            "username": data.get("username", "Guest"),
+            "predicted_species": data.get("predicted_species"),
+            "is_correct": data.get("is_correct"),
+            "corrected_species": data.get("corrected_species"), # Will be null if is_correct is True
+            "timestamp": data.get("timestamp")
+        }
+        
+        feedback_collection.insert_one(feedback_document)
+        
+        return jsonify({"message": "Feedback saved successfully! Thank you for training FishSight! 🐟"}), 200
+        
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(port=5002, debug=True, use_reloader=False)
