@@ -82,6 +82,10 @@ const Chatbot = () => {
     setLoading(true);
     setInput('');
 
+    if (inputRef.current) {
+      inputRef.current.style.height = '';
+    }
+
     try {
       const history = newMessages.slice(-6); 
       const data = await ChatService.sendMessage({

@@ -92,6 +92,8 @@ const Forum = () => {
       setShowCreateForm(false); 
       fetchPosts(); 
       showToast("Post created successfully!", "success"); // <-- Replaced Alert
+      const createBox = document.getElementById("create-post-textarea");
+      if (createBox) createBox.style.height = '';
     } catch (error) {
       showToast("Failed to create post.", "error"); // <-- Replaced Alert
     }
@@ -105,6 +107,8 @@ const Forum = () => {
       setCommentInputs({ ...commentInputs, [postId]: "" });
       fetchPosts(); 
       showToast("Comment added!", "success"); // <-- Replaced Alert
+      const replyBox = document.getElementById(`reply-box-${postId}`);
+      if (replyBox) replyBox.style.height = '';
     } catch (error) {
       showToast("Failed to add comment.", "error"); // <-- Replaced Alert
     }
