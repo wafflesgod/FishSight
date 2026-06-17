@@ -232,6 +232,7 @@ const Forum = () => {
               required
             />
             <textarea 
+              id="create-post-textarea"
               placeholder="What's on your mind?" 
               value={newContent}
               onChange={(e) => {
@@ -368,6 +369,7 @@ const Forum = () => {
                     {currentUser && (
                         <div className="add-comment-box">
                         <textarea
+                            id={`reply-box-${post._id}`}
                             rows="1"
                             placeholder="Write a reply..." 
                             value={commentInputs[post._id] || ""}
