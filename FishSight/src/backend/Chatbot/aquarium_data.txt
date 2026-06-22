@@ -1,0 +1,34 @@
+=== AQUARIUM BASICS: THE NITROGEN CYCLE ===
+1. The Nitrogen Cycle (Overview): The biological process that makes an aquarium safe for fish. Fish waste and uneaten food produce toxic ammonia. Beneficial bacteria convert this ammonia into nitrites (also toxic), and then another type of bacteria converts nitrites into nitrates (less toxic, removed by water changes and plants).
+2. Cycling a New Tank: A new aquarium must be "cycled" for 2 to 6 weeks before adding fish to build up beneficial bacteria in the filter media and substrate. Adding fish before the tank is cycled causes "New Tank Syndrome," leading to ammonia poisoning.
+3. Beneficial Bacteria: These bacteria colonize primarily in the filter media (sponges, ceramic rings) and the substrate. They do not live freely in the water column, so changing the water does not crash the cycle, but replacing all filter media at once will.
+
+=== WATER PARAMETERS & CHEMISTRY ===
+1. Ammonia (NH3): Highly toxic to all aquatic life. Should always test at 0 ppm in a cycled tank. Causes gill burns, gasping at the surface, and rapid death.
+2. Nitrite (NO2-): Highly toxic. Should always test at 0 ppm in a cycled tank. Prevents fish blood from carrying oxygen, leading to suffocation.
+3. Nitrate (NO3-): The end product of the nitrogen cycle. Safe in low amounts (usually under 20-40 ppm). Removed by performing regular partial water changes or absorbed by fast-growing and floating plants like Amazon Frogbit.
+4. pH (Potential of Hydrogen): Measures how acidic or alkaline the water is. Most tropical community fish thrive between 6.5 and 7.5. Sudden fluctuations in pH are more dangerous than a stable but slightly non-ideal pH.
+5. GH (General Hardness): Measures calcium and magnesium in the water. Livebearers like Guppies and Mollies require higher GH, while soft-water fish like Tetras and Rasboras prefer lower GH.
+6. KH (Carbonate Hardness): Acts as a buffer that prevents sudden, fatal pH crashes. Important to monitor in tanks injected with CO2 or those with active buffering aqua soils.
+
+=== EQUIPMENT: FILTRATION ===
+1. Mechanical Filtration: The process of physically trapping solid debris like fish waste, uneaten food, and plant leaves using sponges or filter floss.
+2. Biological Filtration: The most important type of filtration. It involves porous media (like ceramic rings or bio-balls) that provide a high surface area for beneficial bacteria to live and process ammonia.
+3. Sponge Filters: Gentle, air-driven filters. Excellent for nano setups (45x30x30 cm), breeding tanks, or tanks with Cherry Shrimp, as they provide biological filtration without sucking up fry or shrimplets.
+4. Hang-On-Back (HOB) Filters: Great for standard small tanks (60x30x30 cm). They provide excellent mechanical and biological filtration and create good water surface agitation for oxygenation.
+
+=== AQUASCAPING: SUBSTRATE & HARDSCAPE ===
+1. Aqua Soil: Nutrient-rich, clay-based substrate. Lowers pH and softens water. Excellent for heavily planted tanks, especially for heavy root feeders like the Amazon Sword or Red Tiger Lotus. Exhausts its nutrients over 1-2 years.
+2. Sand Substrate: Inert substrate. Required for bottom-dwelling species with sensitive barbels, like Pygmy Corydoras, to prevent physical injury while they forage.
+3. Driftwood: Natural wood added for aesthetics. Often leaches tannins, turning the water a tea-like brown color and naturally lowering the pH, simulating a blackwater environment.
+4. Dragon Stone & Seiryu Stone: Common aquascaping rocks. Seiryu stone can leach calcium, slightly raising the tank's pH and GH over time.
+
+=== TROUBLESHOOTING: ALGAE TYPES ===
+1. Brown Diatom Algae: Dusty brown layer on glass and plants. Extremely common in newly set up tanks. Usually goes away on its own as the tank matures or can be eaten by cleanup crews like Cherry Shrimp.
+2. Green Hair Algae: Long, green threads. Often caused by an imbalance of too much light and too few nutrients for plants to outcompete the algae. Can be manually removed with a toothbrush.
+3. Black Beard Algae (BBA): Stubborn, dark tufts on hardscape and slow-growing plants like Anubias. Caused by fluctuating CO2 levels or poor flow. Can be treated by spot-dosing liquid carbon (like Seachem Flourish Excel) directly onto the algae with the filter temporarily turned off.
+
+=== MAINTENANCE ROUTINE ===
+1. Water Changes: The standard maintenance is a 20% to 30% water change weekly or bi-weekly. This removes built-up nitrates and replenishes essential minerals.
+2. Water Conditioner (Dechlorinator): Must be added to tap water before putting it in the aquarium to neutralize chlorine and chloramines, which will kill fish and instantly destroy beneficial bacteria.
+3. Filter Cleaning: Filter media (sponges, ceramic rings) should only be gently squeezed or rinsed in a bucket of *old tank water* during a water change. Never wash filter media under untreated tap water.
