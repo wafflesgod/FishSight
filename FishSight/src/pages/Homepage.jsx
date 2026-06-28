@@ -206,7 +206,11 @@ const HomePage = () => {
     { name: "Guppy", img: "/fish_images/guppy.jpg" },
     { name: "Angel Fish", img: "/fish_images/angel_fish.jpg" },
     { name: "Goldfish", img: "/fish_images/goldfish.jpg" },
-    { name: "Corydoras", img: "/fish_images/corydoras.jpg" }
+    { name: "Cardinal Tetra", img: "/fish_images/cardinal_tetra.jpg" },
+    { name: "Gourami", img: "/fish_images/gourami.jpg" },
+    { name: "Molly Fish", img: "/fish_images/molly_fish.jpg" },
+    { name: "Platy Fish", img: "/fish_images/platy_fish.jpg" },
+    { name: "Zebra Danio", img: "/fish_images/zebra_danio.jpg" },
   ];
   
   const infiniteFish = [...carouselFish, ...carouselFish];
