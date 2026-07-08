@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { ChatService } from '../services/API'; 
 import { useFish } from '../context/FishContext'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -164,7 +165,11 @@ const Chatbot = () => {
         <div className="messages-list">
           {chatMessages.map((msg, index) => (
             <div key={index} className={`message-bubble ${msg.sender}`}>
-              {msg.text}
+              {msg.sender === 'bot' ? (
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
+              ) : (
+                msg.text
+              )}
             </div>
           ))}
           {loading && <div className="message-bubble bot">Thinking... 🐟</div>}

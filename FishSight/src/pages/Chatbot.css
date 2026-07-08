@@ -161,6 +161,34 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
+/* Markdown content rendered inside bot bubbles (react-markdown) */
+.message-bubble.bot p {
+  margin: 0 0 10px 0;
+}
+
+.message-bubble.bot p:last-child {
+  margin-bottom: 0;
+}
+
+.message-bubble.bot ul,
+.message-bubble.bot ol {
+  margin: 8px 0;
+  padding-left: 22px;
+}
+
+.message-bubble.bot li {
+  margin-bottom: 4px;
+}
+
+.message-bubble.bot strong {
+  color: #112D4E;
+  font-weight: 700;
+}
+
+.message-bubble.bot em {
+  font-style: italic;
+}
+
 .chat-input-area {
   padding: 8px 15px;
   padding-bottom: max(12px, env(safe-area-inset-bottom));
