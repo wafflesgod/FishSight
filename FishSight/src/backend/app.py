@@ -218,11 +218,18 @@ def delete_chat_session(session_id):
 @app.route('/api/forum', methods=['GET'])
 def get_forum_posts():
     try:
-        posts = list(forum_collection.find().sort("Timestamp", -1))
+        # 🚨 FIX 1: Create an index so MongoDB sorts efficiently without loading images into RAM
+        forum_collection.create_index([("Timestamp", -1)])
+        
+        # 🚨 FIX 2: Limit to the 50 most recent posts so the payload doesn't crash the browser
+        posts = list(forum_collection.find().sort("Timestamp", -1).limit(50))
+        
         for post in posts:
-            post['_id'] = str(post['_id'])
+            post['_id'] = str(post['_id'])           
         return jsonify(posts), 200
+        
     except Exception as e:
+        print(f"Forum GET Error: {e}") # Added this so it prints exactly why it failed in Render logs
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/forum', methods=['POST'])
