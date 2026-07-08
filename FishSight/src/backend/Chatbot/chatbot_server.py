@@ -22,6 +22,40 @@ MONGO_URI = os.getenv("MONGO_URI")
 client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
 db = client.fishsight_db
 chat_history_collection = db.chat_history
+species_collection = db.fish_species  # Structured fish data (pH, temp, size, etc.)
+
+
+def find_species_match(user_input):
+    """
+    Check if the user's message mentions a known fish's common name.
+    Returns the matching MongoDB document, or None if no match is found.
+    """
+    user_lower = user_input.lower()
+    all_species = species_collection.find({}, {"_id": 0})
+    for sp in all_species:
+        if sp.get("CommonName", "").lower() in user_lower:
+            return sp
+    return None
+
+
+def format_species_bullets(sp):
+    """
+    Deterministically builds a clean markdown bullet list from a fish's
+    structured MongoDB fields. This guarantees consistent point-form
+    output every time, regardless of what the LLM would have done.
+    """
+    return (
+        f"**{sp.get('CommonName')}** (*{sp.get('SciName')}*)\n\n"
+        f"- **pH Range:** {sp.get('PH_Range')}\n"
+        f"- **Temperature:** {sp.get('Temp_Range')}\n"
+        f"- **Size:** {sp.get('Size')}\n"
+        f"- **Lifespan:** {sp.get('Lifespan')}\n"
+        f"- **Breeding:** {sp.get('Breeding')}\n"
+        f"- **Temperament:** {sp.get('Temperament')}\n"
+        f"- **Diet:** {sp.get('Diet')}\n"
+        f"- **Tank Level:** {sp.get('Tank_Level')}\n"
+        f"- **Care Level:** {sp.get('CareLevel')}\n"
+    )
 
 # --- INITIALIZE MODELS ---
 google_api_key = os.getenv("GOOGLE_API_KEY")
@@ -68,41 +102,66 @@ def chat():
         session_id = str(uuid.uuid4())
 
     try:
-        # Search FAISS
-        docs = retriever.invoke(user_input)
-        context_text = "\n\n".join([doc.page_content for doc in docs])
-
         # Format History
         conversation_text = ""
         for msg in history[-5:]: 
             role = "User" if msg.get('sender') == 'user' else "Assistant"
             conversation_text += f"{role}: {msg.get('text', '')}\n"
 
-        prompt = f"""
-        You are a helpful Aquarium Assistant.
-        PAST CONVERSATION:\n{conversation_text}
-        RELEVANT KNOWLEDGE:\n{context_text}
-        CURRENT USER QUESTION:\n{user_input}
-        
-        INSTRUCTIONS:
-        1. Use the RELEVANT KNOWLEDGE provided to answer the user's question accurately.
-        2. Whenever you provide information or specifications about a specific fish species, ALWAYS present the structural details in a clean, professional bulleted point form (e.g., Common Name, Scientific Name, pH Range, Temperature, Size, Diet, Temperament, Care Level).
-        3. Use a short paragraph only for general background descriptions.
-        4. Keep your overall tone friendly, encouraging, and helpful for aquarium hobbyists.
-        """
-        
-        response = llm.invoke(prompt)
+        # Check if the user is asking about a specific fish we have structured data for.
+        matched_species = find_species_match(user_input)
+
+        if matched_species:
+            # --- DETERMINISTIC PATH ---
+            # We build the bullet list ourselves from MongoDB so the format is
+            # ALWAYS perfect point form. The LLM is only used to write a short,
+            # friendly intro line, it never touches the structured data itself.
+            bullets = format_species_bullets(matched_species)
+            description = matched_species.get("Description", "")
+
+            intro_prompt = f"""
+            You are a friendly Aquarium Assistant. Write ONE short, warm sentence
+            introducing the fish "{matched_species.get('CommonName')}" to the user
+            in response to their question: "{user_input}".
+            Do not list any specs, numbers, or bullet points yourself, just the intro sentence.
+            """
+            intro_response = llm.invoke(intro_prompt)
+            intro_text = intro_response.content.strip()
+
+            final_response = f"{intro_text}\n\n{bullets}\n{description}"
+
+        else:
+            # --- GENERAL RAG PATH (no specific fish matched) ---
+            docs = retriever.invoke(user_input)
+            context_text = "\n\n".join([doc.page_content for doc in docs])
+
+            prompt = f"""
+            You are a helpful Aquarium Assistant.
+            PAST CONVERSATION:\n{conversation_text}
+            RELEVANT KNOWLEDGE:\n{context_text}
+            CURRENT USER QUESTION:\n{user_input}
+
+            INSTRUCTIONS:
+            1. Use the RELEVANT KNOWLEDGE provided to answer the user's question accurately.
+            2. If you mention structured specs for a specific fish species (pH Range, Temperature,
+               Size, Diet, Temperament, Care Level, etc.), ALWAYS format them as a markdown
+               bulleted list, one spec per line, using "- **Label:** value".
+            3. Use a short paragraph only for general background/description text.
+            4. Keep your overall tone friendly, encouraging, and helpful for aquarium hobbyists.
+            """
+            response = llm.invoke(prompt)
+            final_response = response.content
 
         # Save to MongoDB
         chat_history_collection.insert_one({
             "SessionID": session_id,
             "UserID": username,
             "UserQuery": user_input,
-            "AIResponse": response.content,
+            "AIResponse": final_response,
             "Timestamp": datetime.now(timezone.utc)
         })
 
-        return jsonify({"response": response.content, "session_id": session_id}), 200
+        return jsonify({"response": final_response, "session_id": session_id}), 200
 
     except Exception as e:
         print(f"Chat Error: {e}")

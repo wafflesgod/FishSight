@@ -19,7 +19,7 @@ const Forum = () => {
   const [summaries, setSummaries] = useState({}); 
   const [isSummarizing, setIsSummarizing] = useState({}); 
 
-  // NEW: State to track which post is currently playing the delete animation!
+  const [selectedImages, setSelectedImages] = useState([]);
   const [deletingPostId, setDeletingPostId] = useState(null);
 
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
@@ -82,20 +82,52 @@ const Forum = () => {
     }
   };
 
+  // 🚨 NEW: Handle image selection and convert to Base64
+  const handleImageSelection = async (e) => {
+    const files = Array.from(e.target.files);
+    
+    if (files.length > 3 || selectedImages.length + files.length > 3) {
+      showToast("You can only upload a maximum of 3 images.", "error");
+      return;
+    }
+
+    const base64Promises = files.map(file => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => resolve(reader.result);
+      });
+    });
+
+    const base64Images = await Promise.all(base64Promises);
+    setSelectedImages(prev => [...prev, ...base64Images]);
+  };
+
+  // 🚨 NEW: Remove an image before posting
+  const removeImage = (indexToRemove) => {
+    setSelectedImages(selectedImages.filter((_, index) => index !== indexToRemove));
+  };
+
   const handleCreatePost = async (e) => {
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim()) return;
     try {
-      await ForumService.createPost({ title: newTitle, content: newContent, username: currentUser });
+      await ForumService.createPost({ 
+        title: newTitle, 
+        content: newContent, 
+        username: currentUser,
+        images: selectedImages
+      });
       setNewTitle("");
       setNewContent("");
+      setSelectedImages([]);
       setShowCreateForm(false); 
       fetchPosts(); 
-      showToast("Post created successfully!", "success"); // <-- Replaced Alert
+      showToast("Post created successfully!", "success"); 
       const createBox = document.getElementById("create-post-textarea");
       if (createBox) createBox.style.height = '';
     } catch (error) {
-      showToast("Failed to create post.", "error"); // <-- Replaced Alert
+      showToast("Failed to create post.", "error"); 
     }
   };
 
@@ -241,6 +273,28 @@ const Forum = () => {
               }}
               required
             />
+            {/* 🚨 NEW: Image Upload & Preview UI */}
+            <div className="image-upload-section">
+              {selectedImages.length < 3 && (
+                <label className="btn-upload-img">
+                  <input type="file" multiple accept="image/*" onChange={handleImageSelection} hidden />
+                  📷 Attach Images ({selectedImages.length}/3)
+                </label>
+              )}
+              
+              {selectedImages.length > 0 && (
+                <div className="image-preview-container">
+                  {selectedImages.map((img, index) => (
+                    <div key={index} className="image-preview-wrapper">
+                      <img src={img} alt={`Preview ${index}`} className="image-preview" />
+                      <button type="button" className="btn-remove-img" onClick={() => removeImage(index)}>
+                        <FontAwesomeIcon icon={faTimes} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             <button type="submit" className="btn-submit-post">Post</button>
           </form>
         )
@@ -301,6 +355,15 @@ const Forum = () => {
                     </div>
                     
                     <p className="post-content">{post.Content}</p>
+
+                    {/* 🚨 NEW: Display Uploaded Images */}
+                    {post.Images && post.Images.length > 0 && (
+                      <div className={`post-image-grid img-count-${post.Images.length}`}>
+                        {post.Images.map((img, index) => (
+                          <img key={index} src={img} alt={`Attached by ${post.Username}`} className="post-attached-img" />
+                        ))}
+                      </div>
+                    )}
 
                     <div className="post-actions">
                         {/* UPGRADED ANIMATED LIKE BUTTON */}

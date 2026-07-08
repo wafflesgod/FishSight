@@ -231,15 +231,20 @@ def create_forum_post():
     title = data.get('title')
     content = data.get('content')
     username = data.get('username') 
+    images = data.get('images', [])
 
     if not title or not content or not username:
         return jsonify({"error": "Missing required fields"}), 400
+    
+    if len(images) > 3:
+        images = images[:3]
 
     new_post = {
         "Title": title,
         "Content": content,
         "Username": username,
         "Timestamp": datetime.now(timezone.utc),
+        "Images": images,
         "Comments": [] 
     }
     
