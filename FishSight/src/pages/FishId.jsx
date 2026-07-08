@@ -193,15 +193,14 @@ const FishId = () => {
                     <option value="Angel Fish">Angel Fish</option>
                     <option value="Cardinal Tetra">Cardinal Tetra</option>
                     <option value="Cherry Barb">Cherry Barb</option>
-                    <option value="Common Carp">Common Carp</option>
                     <option value="Gold Fish">Gold Fish</option>
                     <option value="Gourami">Gourami</option>
                     <option value="Guppy Fish">Guppy Fish</option>
                     <option value="Molly Fish">Molly Fish</option>
                     <option value="Neon Tetra">Neon Tetra</option>
                     <option value="Platy Fish">Platy Fish</option>
-                    <option value="Rohu">Rohu</option>
                     <option value="Zebra Fish">Zebra Fish</option>
+                    <option value="Others">Others Species</option>
                   </select>
                   <button 
                     onClick={() => sendFeedbackToServer(correctLabel, false)}

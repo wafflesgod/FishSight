@@ -84,7 +84,11 @@ def chat():
         RELEVANT KNOWLEDGE:\n{context_text}
         CURRENT USER QUESTION:\n{user_input}
         
-        INSTRUCTIONS: Use RELEVANT KNOWLEDGE to answer. Keep answers concise and friendly.
+        INSTRUCTIONS:
+        1. Use the RELEVANT KNOWLEDGE provided to answer the user's question accurately.
+        2. Whenever you provide information or specifications about a specific fish species, ALWAYS present the structural details in a clean, professional bulleted point form (e.g., Common Name, Scientific Name, pH Range, Temperature, Size, Diet, Temperament, Care Level).
+        3. Use a short paragraph only for general background descriptions.
+        4. Keep your overall tone friendly, encouraging, and helpful for aquarium hobbyists.
         """
         
         response = llm.invoke(prompt)
