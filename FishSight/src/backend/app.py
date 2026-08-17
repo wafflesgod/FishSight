@@ -333,7 +333,7 @@ def summarize_post(post_id):
         if not groq_api_key:
             return jsonify({"error": "Missing Groq API Key"}), 500
             
-        llm = ChatGroq(temperature=0.0, model_name="gpt-oss-20b", api_key=groq_api_key)
+        llm = ChatGroq(temperature=0.0, model_name="openai/gpt-oss-20b", api_key=groq_api_key)
 
         post = forum_collection.find_one({"_id": ObjectId(post_id)})
         if not post:
