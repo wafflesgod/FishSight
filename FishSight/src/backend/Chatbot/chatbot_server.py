@@ -65,7 +65,7 @@ embeddings = GoogleGenerativeAIEmbeddings(
     model="models/gemini-embedding-001", 
     google_api_key=google_api_key
 )
-llm = ChatGroq(temperature=0.0, model_name="llama-3.1-8b-instant", api_key=groq_api_key)
+llm = ChatGroq(temperature=0.0, model_name="gpt-oss-20b", api_key=groq_api_key)
 
 # --- LOAD DATABASE ---
 print("📂 Loading FAISS Vector Database...")
